@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>門市地址</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
 #map{height:100vh;width:100%;}
 
 /* 右上角門市切換 */
@@ -34,33 +37,49 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans
 .info-text{font-size:14px;margin-bottom:4px;color:#222;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
 
-/* 營業狀態 */
-.status-open{font-size:13px;font-weight:600;color:#2e7d32;margin-top:6px;}
-.status-closing{font-size:13px;font-weight:600;color:#f9a825;margin-top:6px;}
-.status-closed{font-size:13px;font-weight:600;color:#c62828;margin-top:6px;}
-
 /* 導航按鈕 */
 .nav-row{
-  display:flex;justify-content:center;
-  gap:20px;margin-top:14px;
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  margin-top:16px;
 }
 .nav-item{
-  display:flex;flex-direction:column;
-  align-items:center;text-decoration:none;cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  cursor:pointer;
 }
 .nav-circle{
-  width:44px;height:44px;border-radius:50%;
-  background:#6C2F86;display:flex;
-  align-items:center;justify-content:center;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:#6C2F86;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   transition:.2s;
 }
-.nav-circle:hover{background:#5a266f;transform:scale(1.1);}
-.nav-circle svg{width:22px;height:22px;fill:white;}
-.nav-label{font-size:11px;color:#444;margin-top:6px;}
+.nav-circle:hover{
+  background:#5a266f;
+  transform:scale(1.08);
+}
+.nav-circle img{
+  width:35px;   /* ✅ 放大到 35 */
+  height:35px;  /* ✅ 放大到 35 */
+  object-fit:contain;
+}
+.nav-label{
+  font-size:11px;
+  color:#444;
+  margin-top:6px;
+}
 
 /* 紫色定位 */
 .google-pin{
-  position:relative;width:29px;height:29px;
+  position:relative;
+  width:29px;
+  height:29px;
   background:#6C2F86;
   border-radius:50% 50% 50% 0;
   transform:rotate(-45deg);
@@ -68,9 +87,13 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans
   box-shadow:0 6px 16px rgba(0,0,0,.35);
 }
 .pin-inner{
-  position:absolute;width:12px;height:12px;
-  background:white;border-radius:50%;
-  top:8px;left:8px;
+  position:absolute;
+  width:12px;
+  height:12px;
+  background:white;
+  border-radius:50%;
+  top:8px;
+  left:8px;
 }
 </style>
 </head>
@@ -96,13 +119,9 @@ L.tileLayer(
 var dotIcon=L.divIcon({
   className:"",
   html:`<div class="google-pin"><div class="pin-inner"></div></div>`,
-  iconSize:[36,48],iconAnchor:[18,48]
+  iconSize:[36,48],
+  iconAnchor:[18,48]
 });
-
-/* SVG 圖示 */
-var iconTransit=`<svg viewBox="0 0 24 24"><path d="M12 2c-4 0-8 1-8 5v8c0 2.21 1.79 4 4 4l-2 2v1h12v-1l-2-2c2.21 0 4-1.79 4-4V7c0-4-4-5-8-5zm6 11H6V7h12v6z"/></svg>`;
-var iconDrive=`<svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8h2v-1h14v1h2v-8l-2.08-5.99z"/></svg>`;
-var iconWalk=`<svg viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2S14.6 1.5 13.5 1.5 11.5 2.4 11.5 3.5 12.4 5.5 13.5 5.5z"/></svg>`;
 
 var stores={
   tsuenwan:{
@@ -111,8 +130,7 @@ var stores={
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
     phone:"5977 6032 / 5961 6332",
-    hours:"10:00 - 19:00",
-    open:10,close:19
+    hours:"10:00 - 19:00"
   },
   laichikok:{
     name:"荔枝角活動室",
@@ -120,30 +138,14 @@ var stores={
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
     phone:"-",
-    hours:"9:00 - 18:00",
-    open:9,close:18
+    hours:"9:00 - 18:00"
   }
 };
-
-/* 營業狀態 */
-function getStatus(s){
-  var now=new Date();
-  var cur=now.getHours()*60+now.getMinutes();
-  var open=s.open*60;
-  var close=s.close*60;
-
-  if(cur>=open && cur<close){
-    if(close-cur<=30) return `<div class="status-closing">🟡 即將休息</div>`;
-    return `<div class="status-open">🟢 現正營業</div>`;
-  }
-  return `<div class="status-closed">🔴 現已休息</div>`;
-}
 
 var markers={};
 
 for(var key in stores){
   var s=stores[key];
-  var status=getStatus(s);
 
   var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
   .addTo(map)
@@ -154,21 +156,32 @@ for(var key in stores){
       <div class="mtr-note">${s.mtr}</div>
       <div class="info-text">電話：${s.phone}</div>
       <div class="info-text">營業時間：${s.hours}</div>
-      ${status}
+
       <div class="nav-row">
-        <a class="nav-item" href="#" onclick="smartNavigate(${s.lat},${s.lng},'transit');return false;">
-          <div class="nav-circle">${iconTransit}</div>
+
+        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'transit')">
+          <div class="nav-circle">
+            <img src="images/transit.png">
+          </div>
           <div class="nav-label">公共交通</div>
-        </a>
-        <a class="nav-item" href="#" onclick="smartNavigate(${s.lat},${s.lng},'driving');return false;">
-          <div class="nav-circle">${iconDrive}</div>
+        </div>
+
+        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'driving')">
+          <div class="nav-circle">
+            <img src="images/drive.png">
+          </div>
           <div class="nav-label">駕車</div>
-        </a>
-        <a class="nav-item" href="#" onclick="smartNavigate(${s.lat},${s.lng},'walking');return false;">
-          <div class="nav-circle">${iconWalk}</div>
+        </div>
+
+        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'walking')">
+          <div class="nav-circle">
+            <img src="images/walk.png">
+          </div>
           <div class="nav-label">步行</div>
-        </a>
+        </div>
+
       </div>
+
     </div>
   `);
 
