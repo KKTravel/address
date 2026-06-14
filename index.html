@@ -9,162 +9,69 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-}
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; }
+#map { height:100vh; width:100%; }
 
-#map {
-  height: 100vh;
-  width: 100%;
+/* 右上角門市按鈕 */
+.store-buttons{
+  position:absolute; top:15px; right:15px;
+  z-index:1000; display:flex; flex-direction:column; gap:8px;
 }
+.store-buttons button{
+  padding:10px 18px; border:none; border-radius:20px;
+  background:#6C2F86; color:white; font-size:14px;
+  cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.2);
+}
+.store-buttons button:hover{ background:#5a266f; }
 
-/* 右上角按鈕 */
-.store-buttons {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Popup */
+.leaflet-popup-content-wrapper{
+  border-radius:12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.2);
 }
+.info-card{ max-width:300px; }
+.info-title{ font-size:16px; font-weight:600; margin-bottom:8px; }
+.info-text{ font-size:14px; margin-bottom:4px; color:#222; }
+.mtr-note{ font-size:13px; color:#666; margin-bottom:6px; }
 
-.store-buttons button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 20px;
-  background: #6C2F86;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transition: all 0.2s;
-}
+/* 營業狀態 */
+.status-open{ font-size:13px; font-weight:600; color:#2e7d32; margin-top:6px; }
+.status-closing{ font-size:13px; font-weight:600; color:#f9a825; margin-top:6px; }
+.status-closed{ font-size:13px; font-weight:600; color:#c62828; margin-top:6px; }
 
-.store-buttons button:hover {
-  background: #5a266f;
-  transform: translateY(-2px);
+/* 導航按鈕區 */
+.nav-row{
+  display:flex; justify-content:center;
+  gap:20px; margin-top:14px;
 }
-
-/* 資訊框 */
-.leaflet-popup-content-wrapper {
-  border-radius: 12px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+.nav-item{
+  display:flex; flex-direction:column;
+  align-items:center; text-decoration:none; cursor:pointer;
 }
-
-.info-card {
-  max-width: 300px;
+.nav-circle{
+  width:44px; height:44px; border-radius:50%;
+  background:#6C2F86; display:flex;
+  align-items:center; justify-content:center;
+  transition:.2s;
 }
-
-.info-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.info-text {
-  font-size: 14px;
-  margin-bottom: 4px;
-  color: #222;
-}
-
-.mtr-note {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-/* ✅ 香港用語營業狀態 */
-.status-open {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2e7d32;
-  margin-top: 6px;
-}
-
-.status-closing {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f9a825;
-  margin-top: 6px;
-}
-
-.status-closed {
-  font-size: 13px;
-  font-weight: 600;
-  color: #c62828;
-  margin-top: 6px;
-}
-
-/* ✅ 導航按鈕 */
-.nav-row {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 14px;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.nav-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #6C2F86;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s;
-}
-
-.nav-circle:hover {
-  background: #5a266f;
-  transform: scale(1.1);
-}
-
-.nav-circle svg {
-  width: 20px;
-  height: 20px;
-  fill: white;
-}
-
-.nav-label {
-  font-size: 11px;
-  color: #444;
-  margin-top: 6px;
-  text-align: center;
-}
+.nav-circle:hover{ background:#5a266f; transform:scale(1.1); }
+.nav-circle svg{ width:20px; height:20px; fill:white; }
+.nav-label{ font-size:11px; color:#444; margin-top:6px; }
 
 /* 紫色定位 */
-.google-pin {
-  position: relative;
-  width: 29px;
-  height: 29px;
-  background: #6C2F86;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  border: 2.5px solid white;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+.google-pin{
+  position:relative; width:29px; height:29px;
+  background:#6C2F86;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  border:2.5px solid white;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
 }
-
-.pin-inner {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: white;
-  border-radius: 50%;
-  top: 8px;
-  left: 8px;
+.pin-inner{
+  position:absolute; width:12px; height:12px;
+  background:white; border-radius:50%;
+  top:8px; left:8px;
 }
-
 </style>
 </head>
 
@@ -179,91 +86,119 @@ body {
 
 <script>
 
-var map = L.map('map', { minZoom: 12, maxZoom: 19 });
+var map = L.map('map',{ minZoom:12, maxZoom:19 });
 
 L.tileLayer(
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-  { attribution: 'Tiles © Esri', maxZoom: 19 }
+'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+{ attribution:'Tiles © Esri', maxZoom:19 }
 ).addTo(map);
 
 var dotIcon = L.divIcon({
-  className: "",
-  html: `<div class="google-pin"><div class="pin-inner"></div></div>`,
-  iconSize: [36, 48],
-  iconAnchor: [18, 48]
+  className:"",
+  html:`<div class="google-pin"><div class="pin-inner"></div></div>`,
+  iconSize:[36,48], iconAnchor:[18,48]
 });
 
-var stores = {
-  tsuenwan: {
-    name: "荃灣門市",
-    lat: 22.37367,
-    lng: 114.11634,
-    address: "荃灣南豐中心17樓1714室",
-    mtr: "（荃灣港鐵站 A 出口）",
-    phone: "5977 6032 / 5961 6332",
-    hours: "10:00 - 19:00",
-    openHour: 10, closeHour: 19
+/* 白色單色 SVG */
+var iconTransit=`<svg viewBox="0 0 24 24"><path d="M12 2C8 2 4 3.5 4 7v9.5C4 18.43 5.57 20 7.5 20L6 21.5v.5h12v-.5L16.5 20c1.93 0 3.5-1.57 3.5-3.5V7c0-3.5-4-5-8-5zm6 9H6V7h12v4z"/></svg>`;
+var iconDrive=`<svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8h2v-1h14v1h2v-8l-2.08-5.99z"/></svg>`;
+var iconWalk=`<svg viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>`;
+
+var stores={
+  tsuenwan:{
+    name:"荃灣門市",
+    lat:22.37367, lng:114.11634,
+    address:"荃灣南豐中心17樓1714室",
+    mtr:"（荃灣港鐵站 A 出口）",
+    phone:"5977 6032 / 5961 6332",
+    hours:"10:00 - 19:00",
+    open:10, close:19
   },
-  laichikok: {
-    name: "荔枝角活動室",
-    lat: 22.3367,
-    lng: 114.1494,
-    address: "長沙灣長義街2-4號新昌工業大廈11樓1103B室",
-    mtr: "（荔枝角港鐵站 D2 出口）",
-    phone: "-",
-    hours: "9:00 - 18:00",
-    openHour: 9, closeHour: 18
+  laichikok:{
+    name:"荔枝角活動室",
+    lat:22.3367, lng:114.1494,
+    address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
+    mtr:"（荔枝角港鐵站 D2 出口）",
+    phone:"-",
+    hours:"9:00 - 18:00",
+    open:9, close:18
   }
 };
 
-// ✅ 香港用語營業狀態
-function getStatus(store) {
-  var now = new Date();
-  var current = now.getHours() * 60 + now.getMinutes();
-  var open = store.openHour * 60;
-  var close = store.closeHour * 60;
+/* 營業狀態 */
+function getStatus(s){
+  var now=new Date();
+  var cur=now.getHours()*60+now.getMinutes();
+  var open=s.open*60;
+  var close=s.close*60;
 
-  if (current >= open && current < close) {
-    if (close - current <= 30) {
-      return '<div class="status-closing">🟡 即將休息</div>';
-    }
-    return '<div class="status-open">🟢 現正營業</div>';
+  if(cur>=open && cur<close){
+    if(close-cur<=30) return `<div class="status-closing">🟡 即將休息</div>`;
+    return `<div class="status-open">🟢 現正營業</div>`;
   }
-  return '<div class="status-closed">🔴 現已休息</div>';
+  return `<div class="status-closed">🔴 現已休息</div>`;
 }
 
-var markers = {};
+var markers={};
 
-for (var key in stores) {
-  var s = stores[key];
-  var status = getStatus(s);
+for(var key in stores){
+  var s=stores[key];
+  var status=getStatus(s);
 
-  var marker = L.marker([s.lat, s.lng], { icon: dotIcon })
-    .addTo(map)
-    .bindPopup(`
-      <div class="info-card">
-        <div class="info-title">${s.name}</div>
-        <div class="info-text">地址：${s.address}</div>
-        <div class="mtr-note">${s.mtr}</div>
-        <div class="info-text">電話：${s.phone}</div>
-        <div class="info-text">營業時間：${s.hours}</div>
-        ${status}
+  var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
+  .addTo(map)
+  .bindPopup(`
+    <div class="info-card">
+      <div class="info-title">${s.name}</div>
+      <div class="info-text">地址：${s.address}</div>
+      <div class="mtr-note">${s.mtr}</div>
+      <div class="info-text">電話：${s.phone}</div>
+      <div class="info-text">營業時間：${s.hours}</div>
+      ${status}
+      <div class="nav-row">
+        <a class="nav-item" href="#" onclick="smartNavigate(${s.lat},${s.lng},'transit');return false;">
+          <div class="nav-circle">${iconTransit}</div>
+          <div class="nav-label">公共交通</div>
+        </a>
+        <a class="nav-item" href="#" onclick="smartNavigate(${s.lat},${s.lng},'driving');return false;">
+          <div class="nav-circle">${iconDrive}</div>
+          <div class="nav-label">駕車</div>
+        </a>
+        <a class="nav-item" href="#" onclick="smartNavigate(${s.lat},${s.lng},'walking');return false;">
+          <div class="nav-circle">${iconWalk}</div>
+          <div class="nav-label">步行</div>
+        </a>
       </div>
-    `);
+    </div>
+  `);
 
-  markers[key] = marker;
+  markers[key]=marker;
 }
 
-var group = L.featureGroup(Object.values(markers));
-map.fitBounds(group.getBounds());
+map.fitBounds(L.featureGroup(Object.values(markers)).getBounds());
 
-function goToStore(key) {
-  var s = stores[key];
-  map.flyTo([s.lat, s.lng], 19, { duration: 0.6 });
+function goToStore(key){
+  var s=stores[key];
+  map.flyTo([s.lat,s.lng],19,{duration:.6});
   markers[key].openPopup();
 }
 
-</script>
+/* 智慧導航 */
+function smartNavigate(lat,lng,mode){
+  var ua=navigator.userAgent||navigator.vendor||window.opera;
+  var appleMode={transit:'r',driving:'d',walking:'w'};
 
+  if(/iPad|iPhone|iPod/.test(ua)&&!window.MSStream){
+    window.location.href=`https://maps.apple.com/?daddr=${lat},${lng}&dirflg=${appleMode[mode]}`;
+  }
+  else if(/android/i.test(ua)){
+    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`;
+  }
+  else{
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`,"_blank");
+  }
+}
+
+</script>
 </body>
 </html>
