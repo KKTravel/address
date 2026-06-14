@@ -19,6 +19,35 @@ body {
   width: 100%;
 }
 
+/* 右上角按鈕 */
+.store-buttons {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.store-buttons button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 20px;
+  background: #6C2F86;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.2s;
+}
+
+.store-buttons button:hover {
+  background: #5a266f;
+  transform: translateY(-2px);
+}
+
 /* 資訊框 */
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
@@ -26,7 +55,7 @@ body {
 }
 
 .info-card {
-  max-width: 260px;
+  max-width: 300px;
 }
 
 .info-title {
@@ -41,12 +70,85 @@ body {
   color: #222;
 }
 
-/* 紫色水滴 */
+.mtr-note {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+/* ✅ 香港用語營業狀態 */
+.status-open {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2e7d32;
+  margin-top: 6px;
+}
+
+.status-closing {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f9a825;
+  margin-top: 6px;
+}
+
+.status-closed {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c62828;
+  margin-top: 6px;
+}
+
+/* ✅ 導航按鈕 */
+.nav-row {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #6C2F86;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.nav-circle:hover {
+  background: #5a266f;
+  transform: scale(1.1);
+}
+
+.nav-circle svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+.nav-label {
+  font-size: 11px;
+  color: #444;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* 紫色定位 */
 .google-pin {
   position: relative;
   width: 29px;
   height: 29px;
-  background: #7b1fa2;
+  background: #6C2F86;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   border: 2.5px solid white;
@@ -70,75 +172,96 @@ body {
 
 <div id="map"></div>
 
+<div class="store-buttons">
+  <button onclick="goToStore('tsuenwan')">荃灣門市</button>
+  <button onclick="goToStore('laichikok')">荔枝角活動室</button>
+</div>
+
 <script>
 
-// 初始化地圖（限制縮放避免灰屏）
-var map = L.map('map', {
-  minZoom: 12,
-  maxZoom: 17
-});
+var map = L.map('map', { minZoom: 12, maxZoom: 19 });
 
-// Esri 鮮色地圖
 L.tileLayer(
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-  {
-    attribution: 'Tiles © Esri',
-    maxZoom: 17
-  }
+  { attribution: 'Tiles © Esri', maxZoom: 19 }
 ).addTo(map);
 
-// 紫色定位圖標
 var dotIcon = L.divIcon({
   className: "",
-  html: `
-    <div class="google-pin">
-      <div class="pin-inner"></div>
-    </div>
-  `,
+  html: `<div class="google-pin"><div class="pin-inner"></div></div>`,
   iconSize: [36, 48],
   iconAnchor: [18, 48]
 });
 
-// ✅ 最新修正座標
-var stores = [
-
-  {
-    name: "荃灣店",
+var stores = {
+  tsuenwan: {
+    name: "荃灣門市",
     lat: 22.37367,
     lng: 114.11634,
     address: "荃灣南豐中心17樓1714室",
-    phone: "5977 6032 / 5961 6332"
+    mtr: "（荃灣港鐵站 A 出口）",
+    phone: "5977 6032 / 5961 6332",
+    hours: "10:00 - 19:00",
+    openHour: 10, closeHour: 19
   },
-
-  {
+  laichikok: {
     name: "荔枝角活動室",
     lat: 22.3367,
     lng: 114.1494,
     address: "長沙灣長義街2-4號新昌工業大廈11樓1103B室",
-    phone: "-"
+    mtr: "（荔枝角港鐵站 D2 出口）",
+    phone: "-",
+    hours: "9:00 - 18:00",
+    openHour: 9, closeHour: 18
   }
+};
 
-];
+// ✅ 香港用語營業狀態
+function getStatus(store) {
+  var now = new Date();
+  var current = now.getHours() * 60 + now.getMinutes();
+  var open = store.openHour * 60;
+  var close = store.closeHour * 60;
 
-var bounds = [];
+  if (current >= open && current < close) {
+    if (close - current <= 30) {
+      return '<div class="status-closing">🟡 即將休息</div>';
+    }
+    return '<div class="status-open">🟢 現正營業</div>';
+  }
+  return '<div class="status-closed">🔴 現已休息</div>';
+}
 
-stores.forEach(function(store){
+var markers = {};
 
-  var marker = L.marker([store.lat, store.lng], { icon: dotIcon })
+for (var key in stores) {
+  var s = stores[key];
+  var status = getStatus(s);
+
+  var marker = L.marker([s.lat, s.lng], { icon: dotIcon })
     .addTo(map)
     .bindPopup(`
       <div class="info-card">
-        <div class="info-title">${store.name}</div>
-        <div class="info-text">地址：${store.address}</div>
-        <div class="info-text">電話：${store.phone}</div>
+        <div class="info-title">${s.name}</div>
+        <div class="info-text">地址：${s.address}</div>
+        <div class="mtr-note">${s.mtr}</div>
+        <div class="info-text">電話：${s.phone}</div>
+        <div class="info-text">營業時間：${s.hours}</div>
+        ${status}
       </div>
     `);
 
-  bounds.push([store.lat, store.lng]);
-});
+  markers[key] = marker;
+}
 
-// 自動縮放
-map.fitBounds(bounds);
+var group = L.featureGroup(Object.values(markers));
+map.fitBounds(group.getBounds());
+
+function goToStore(key) {
+  var s = stores[key];
+  map.flyTo([s.lat, s.lng], 19, { duration: 0.6 });
+  markers[key].openPopup();
+}
 
 </script>
 
