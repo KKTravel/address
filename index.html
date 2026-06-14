@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>門市據點</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+
+#map {
+  height: 100vh;
+  width: 100%;
+}
+
+/* 資訊框 */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+}
+
+.info-card {
+  max-width: 260px;
+}
+
+.info-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.info-text {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+/* 紫色水滴 */
+.google-pin {
+  position: relative;
+  width: 29px;
+  height: 29px;
+  background: #7b1fa2;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2.5px solid white;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+
+.pin-inner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 8px;
+  left: 8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script>
+
+// 初始化地圖（限制縮放避免灰屏）
+var map = L.map('map', {
+  minZoom: 12,
+  maxZoom: 17
+});
+
+// Esri 鮮色地圖
+L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  {
+    attribution: 'Tiles © Esri',
+    maxZoom: 17
+  }
+).addTo(map);
+
+// 紫色定位圖標
+var dotIcon = L.divIcon({
+  className: "",
+  html: `
+    <div class="google-pin">
+      <div class="pin-inner"></div>
+    </div>
+  `,
+  iconSize: [36, 48],
+  iconAnchor: [18, 48]
+});
+
+// ✅ 最新修正座標
+var stores = [
+
+  {
+    name: "荃灣店",
+    lat: 22.37367,
+    lng: 114.11634,
+    address: "荃灣南豐中心17樓1714室",
+    phone: "5977 6032 / 5961 6332"
+  },
+
+  {
+    name: "荔枝角活動室",
+    lat: 22.3366,
+    lng: 114.1494,
+    address: "長沙灣長義街2-4號新昌工業大廈11樓1103B室",
+    phone: "-"
+  }
+
+];
+
+var bounds = [];
+
+stores.forEach(function(store){
+
+  var marker = L.marker([store.lat, store.lng], { icon: dotIcon })
+    .addTo(map)
+    .bindPopup(`
+      <div class="info-card">
+        <div class="info-title">${store.name}</div>
+        <div class="info-text">地址：${store.address}</div>
+        <div class="info-text">電話：${store.phone}</div>
+      </div>
+    `);
+
+  bounds.push([store.lat, store.lng]);
+});
+
+// 自動縮放
+map.fitBounds(bounds);
+
+</script>
+
+</body>
+</html>
