@@ -14,7 +14,6 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
 
-/* ✅ 修正層級問題 */
 #map{
   height:100vh;
   width:100%;
@@ -22,79 +21,122 @@ body{
   z-index:1;
 }
 
-/* ✅ 右上角門市切換 */
+/* ======================
+   右上角門市按鈕（無框膠囊）
+====================== */
+
 .store-buttons{
   position:absolute;
-  top:15px;
-  right:15px;
+  top:20px;
+  right:20px;
   z-index:9999;
   display:flex;
   flex-direction:column;
-  gap:8px;
-}
-.store-buttons button{
-  padding:10px 18px;
-  border:none;
-  border-radius:20px;
-  background:#6C2F86;
-  color:white;
-  font-size:14px;
-  cursor:pointer;
-  box-shadow:0 4px 10px rgba(0,0,0,.2);
-}
-.store-buttons button:hover{
-  background:#5a266f;
+  gap:14px;
 }
 
-/* Popup */
-.leaflet-popup-content-wrapper{
-  border-radius:12px;
-  box-shadow:0 10px 24px rgba(0,0,0,.2);
+.store-buttons button{
+  min-width:140px;
+  padding:12px 26px;
+  border-radius:40px;
+  border:none;
+  background:#ffffff;
+  color:#6C2F86;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition:.25s ease;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
+
+.store-buttons button:hover{
+  background:#6C2F86;
+  color:#ffffff;
+  box-shadow:0 10px 26px rgba(108,47,134,.35);
+  transform:translateY(-2px);
+}
+
+.store-buttons button.active{
+  background:#6C2F86;
+  color:#ffffff;
+  box-shadow:0 10px 26px rgba(108,47,134,.35);
+}
+
+/* ======================
+   Popup 設計
+====================== */
+
+.leaflet-popup-content-wrapper{
+  border-radius:14px;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+
 .info-card{max-width:300px;}
 .info-title{font-size:16px;font-weight:600;margin-bottom:8px;}
 .info-text{font-size:14px;margin-bottom:4px;color:#222;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
 
-/* 導航按鈕 */
+/* ======================
+   導航按鈕（陰影版）
+====================== */
+
 .nav-row{
   display:flex;
   justify-content:center;
   gap:24px;
   margin-top:16px;
 }
+
 .nav-item{
   display:flex;
   flex-direction:column;
   align-items:center;
   cursor:pointer;
 }
+
 .nav-circle{
   width:56px;
   height:56px;
   border-radius:50%;
-  background:#6C2F86;
+  background:#ffffff;
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:.2s;
+  transition:.25s;
+  box-shadow:0 6px 18px rgba(108,47,134,.18);
 }
-.nav-circle:hover{
-  background:#5a266f;
-  transform:scale(1.08);
-}
+
+/* 預設 icon 轉品牌紫色 */
 .nav-circle img{
-  width:32px;
-  height:32px;
+  width:30px;
+  height:30px;
   object-fit:contain;
+  filter: brightness(0) saturate(100%) invert(17%) sepia(78%) saturate(1436%) hue-rotate(262deg) brightness(92%) contrast(92%);
 }
+
+/* Hover / Active */
+.nav-item:hover .nav-circle,
+.nav-item.active .nav-circle{
+  background:#6C2F86;
+  box-shadow:0 8px 22px rgba(108,47,134,.35);
+}
+
+.nav-item:hover img,
+.nav-item.active img{
+  filter: brightness(0) invert(1);
+}
+
 .nav-label{
   font-size:11px;
   color:#444;
   margin-top:6px;
 }
 
-/* 紫色定位圖示 */
+/* ======================
+   紫色定位圖示
+====================== */
+
 .google-pin{
   position:relative;
   width:29px;
@@ -105,6 +147,7 @@ body{
   border:2.5px solid white;
   box-shadow:0 6px 16px rgba(0,0,0,.35);
 }
+
 .pin-inner{
   position:absolute;
   width:12px;
@@ -122,8 +165,8 @@ body{
 <div id="map"></div>
 
 <div class="store-buttons">
-  <button onclick="goToStore('tsuenwan')">荃灣門市</button>
-  <button onclick="goToStore('laichikok')">荔枝角活動室</button>
+  <button id="btn-tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
+  <button id="btn-laichikok" onclick="goToStore('laichikok')">荔枝角活動室</button>
 </div>
 
 <script>
@@ -135,7 +178,6 @@ L.tileLayer(
 {attribution:'Tiles © Esri'}
 ).addTo(map);
 
-/* ✅ 預設視角 */
 map.setView([22.36,114.13],12);
 
 var dotIcon=L.divIcon({
@@ -180,20 +222,9 @@ for(var key in stores){
       '<div class="info-text">營業時間：'+s.hours+'</div>'+
 
       '<div class="nav-row">'+
-        '<div class="nav-item" onclick="smartNavigate('+s.lat+','+s.lng+',\'transit\')">'+
-          '<div class="nav-circle"><img src="transit.png"></div>'+
-          '<div class="nav-label">公共交通</div>'+
-        '</div>'+
-
-        '<div class="nav-item" onclick="smartNavigate('+s.lat+','+s.lng+',\'driving\')">'+
-          '<div class="nav-circle"><img src="drive.png"></div>'+
-          '<div class="nav-label">駕車</div>'+
-        '</div>'+
-
-        '<div class="nav-item" onclick="smartNavigate('+s.lat+','+s.lng+',\'walking\')">'+
-          '<div class="nav-circle"><img src="walk.png"></div>'+
-          '<div class="nav-label">步行</div>'+
-        '</div>'+
+        createNavButton(s.lat,s.lng,'transit','transit.png','公共交通')+
+        createNavButton(s.lat,s.lng,'driving','drive.png','駕車')+
+        createNavButton(s.lat,s.lng,'walking','walk.png','步行')+
       '</div>'+
     '</div>'
   );
@@ -201,27 +232,38 @@ for(var key in stores){
   markers[key]=marker;
 }
 
+function createNavButton(lat,lng,mode,icon,label){
+  return '<div class="nav-item" onclick="selectNav(this); smartNavigate('+lat+','+lng+',\''+mode+'\')">'+
+           '<div class="nav-circle"><img src="'+icon+'"></div>'+
+           '<div class="nav-label">'+label+'</div>'+
+         '</div>';
+}
+
 function goToStore(key){
   var s=stores[key];
   map.flyTo([s.lat,s.lng],18,{duration:0.6});
   markers[key].openPopup();
+
+  document.querySelectorAll('.store-buttons button')
+    .forEach(btn=>btn.classList.remove('active'));
+
+  document.getElementById('btn-'+key).classList.add('active');
+}
+
+function selectNav(el){
+  el.parentElement.querySelectorAll('.nav-item')
+    .forEach(item=>item.classList.remove('active'));
+  el.classList.add('active');
 }
 
 function smartNavigate(lat,lng,mode){
-  var ua=navigator.userAgent||navigator.vendor||window.opera;
-  var appleMode={transit:'r',driving:'d',walking:'w'};
-
-  if(/iPad|iPhone|iPod/.test(ua)&&!window.MSStream){
-    window.location.href='https://maps.apple.com/?daddr='+lat+','+lng+'&dirflg='+appleMode[mode];
-  }
-  else{
-    window.open(
-      'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+mode,
-      '_blank'
-    );
-  }
+  window.open(
+    'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+mode,
+    '_blank'
+  );
 }
 
-</script>
-</body>
-</html>
+/* 點地圖空白 → 按鈕恢復白底 */
+map.on('click', function () {
+  document.querySelectorAll('.store-buttons button')
+    .forEach(btn => btn.classList.remove('active'));
