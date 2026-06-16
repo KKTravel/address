@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-HK">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -9,27 +10,46 @@
 
 <style>
 body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
-#map{height:100vh;width:100%;}
 
-/* 右上角門市切換 */
+/* ✅ 修正層級問題 */
+#map{
+  height:100vh;
+  width:100%;
+  position:relative;
+  z-index:1;
+}
+
+/* ✅ 右上角門市切換 */
 .store-buttons{
-  position:absolute;top:15px;right:15px;
-  z-index:1000;display:flex;flex-direction:column;gap:8px;
+  position:absolute;
+  top:15px;
+  right:15px;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 .store-buttons button{
-  padding:10px 18px;border:none;border-radius:20px;
-  background:#6C2F86;color:white;font-size:14px;
-  cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.2);
+  padding:10px 18px;
+  border:none;
+  border-radius:20px;
+  background:#6C2F86;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.2);
 }
-.store-buttons button:hover{background:#5a266f;}
+.store-buttons button:hover{
+  background:#5a266f;
+}
 
 /* Popup */
 .leaflet-popup-content-wrapper{
-  border-radius:12px;
-  box-shadow:0 10px 24px rgba(0,0,0,.2);
+  border-radius:12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.2);
 }
 .info-card{max-width:300px;}
 .info-title{font-size:16px;font-weight:600;margin-bottom:8px;}
@@ -38,61 +58,61 @@ body{
 
 /* 導航按鈕 */
 .nav-row{
-  display:flex;
-  justify-content:center;
-  gap:24px;
-  margin-top:16px;
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  margin-top:16px;
 }
 .nav-item{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  cursor:pointer;
 }
 .nav-circle{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:#6C2F86;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:.2s;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:#6C2F86;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.2s;
 }
 .nav-circle:hover{
-  background:#5a266f;
-  transform:scale(1.08);
+  background:#5a266f;
+  transform:scale(1.08);
 }
 .nav-circle img{
-  width:35px; 
-  height:35px; 
-  object-fit:contain;
+  width:32px;
+  height:32px;
+  object-fit:contain;
 }
 .nav-label{
-  font-size:11px;
-  color:#444;
-  margin-top:6px;
+  font-size:11px;
+  color:#444;
+  margin-top:6px;
 }
 
-/* 紫色定位 */
+/* 紫色定位圖示 */
 .google-pin{
-  position:relative;
-  width:29px;
-  height:29px;
-  background:#6C2F86;
-  border-radius:50% 50% 50% 0;
-  transform:rotate(-45deg);
-  border:2.5px solid white;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);
+  position:relative;
+  width:29px;
+  height:29px;
+  background:#6C2F86;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  border:2.5px solid white;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
 }
 .pin-inner{
-  position:absolute;
-  width:12px;
-  height:12px;
-  background:white;
-  border-radius:50%;
-  top:8px;
-  left:8px;
+  position:absolute;
+  width:12px;
+  height:12px;
+  background:white;
+  border-radius:50%;
+  top:8px;
+  left:8px;
 }
 </style>
 </head>
@@ -102,112 +122,104 @@ body{
 <div id="map"></div>
 
 <div class="store-buttons">
-  <button onclick="goToStore('tsuenwan')">荃灣門市</button>
-  <button onclick="goToStore('laichikok')">荔枝角活動室</button>
+  <button onclick="goToStore('tsuenwan')">荃灣門市</button>
+  <button onclick="goToStore('laichikok')">荔枝角活動室</button>
 </div>
 
 <script>
 
-var map=L.map('map',{minZoom:12,maxZoom:19});
+var map=L.map('map',{minZoom:11,maxZoom:19});
 
 L.tileLayer(
 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-{attribution:'Tiles © Esri',maxZoom:19}
+{attribution:'Tiles © Esri'}
 ).addTo(map);
 
+/* ✅ 預設視角 */
+map.setView([22.36,114.13],12);
+
 var dotIcon=L.divIcon({
-  className:"",
-  html:`<div class="google-pin"><div class="pin-inner"></div></div>`,
-  iconSize:[36,48],
-  iconAnchor:[18,48]
+  className:"",
+  html:'<div class="google-pin"><div class="pin-inner"></div></div>',
+  iconSize:[36,48],
+  iconAnchor:[18,48]
 });
 
 var stores={
-  tsuenwan:{
-    name:"荃灣門市",
-    lat:22.37367,lng:114.11634,
-    address:"荃灣南豐中心17樓1714室",
-    mtr:"（荃灣港鐵站 A 出口）",
-    phone:"5977 6032 / 5961 6332",
-    hours:"10:00 - 19:00"
-  },
-  laichikok:{
-    name:"荔枝角活動室",
-    lat:22.3367,lng:114.1494,
-    address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
-    mtr:"（荔枝角港鐵站 D2 出口）",
-    phone:"-",
-    hours:"9:00 - 18:00"
-  }
+  tsuenwan:{
+    name:"荃灣門市",
+    lat:22.37367,lng:114.11634,
+    address:"荃灣南豐中心17樓1714室",
+    mtr:"（荃灣港鐵站 A 出口）",
+    phone:"5977 6032 / 5961 6332",
+    hours:"10:00 - 19:00"
+  },
+  laichikok:{
+    name:"荔枝角活動室",
+    lat:22.3367,lng:114.1494,
+    address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
+    mtr:"（荔枝角港鐵站 D2 出口）",
+    phone:"-",
+    hours:"9:00 - 18:00"
+  }
 };
 
 var markers={};
 
 for(var key in stores){
-  var s=stores[key];
+  var s=stores[key];
 
-  var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
-  .addTo(map)
-  .bindPopup(`
-    <div class="info-card">
-      <div class="info-title">${s.name}</div>
-      <div class="info-text">地址：${s.address}</div>
-      <div class="mtr-note">${s.mtr}</div>
-      <div class="info-text">電話：${s.phone}</div>
-      <div class="info-text">營業時間：${s.hours}</div>
+  var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
+  .addTo(map)
+  .bindPopup(
+    '<div class="info-card">'+
+      '<div class="info-title">'+s.name+'</div>'+
+      '<div class="info-text">地址：'+s.address+'</div>'+
+      '<div class="mtr-note">'+s.mtr+'</div>'+
+      '<div class="info-text">電話：'+s.phone+'</div>'+
+      '<div class="info-text">營業時間：'+s.hours+'</div>'+
 
-      <div class="nav-row">
+      '<div class="nav-row">'+
+        '<div class="nav-item" onclick="smartNavigate('+s.lat+','+s.lng+',\'transit\')">'+
+          '<div class="nav-circle"><img src="transit.png"></div>'+
+          '<div class="nav-label">公共交通</div>'+
+        '</div>'+
 
-        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'transit')">
-          <div class="nav-circle">
-            <img src="transit.png">
-          </div>
-          <div class="nav-label">公共交通</div>
-        </div>
+        '<div class="nav-item" onclick="smartNavigate('+s.lat+','+s.lng+',\'driving\')">'+
+          '<div class="nav-circle"><img src="drive.png"></div>'+
+          '<div class="nav-label">駕車</div>'+
+        '</div>'+
 
-        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'driving')">
-          <div class="nav-circle">
-            <img src="drive.png">
-          </div>
-          <div class="nav-label">駕車</div>
-        </div>
+        '<div class="nav-item" onclick="smartNavigate('+s.lat+','+s.lng+',\'walking\')">'+
+          '<div class="nav-circle"><img src="walk.png"></div>'+
+          '<div class="nav-label">步行</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'
+  );
 
-        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'walking')">
-          <div class="nav-circle">
-            <img src="walk.png">
-          </div>
-          <div class="nav-label">步行</div>
-        </div>
-
-      </div>
-
-    </div>
-  `);
-
-  markers[key]=marker;
+  markers[key]=marker;
 }
 
-map.fitBounds(L.featureGroup(Object.values(markers)).getBounds());
-
 function goToStore(key){
-  var s=stores[key];
-  map.flyTo([s.lat,s.lng],19,{duration:.6});
-  markers[key].openPopup();
+  var s=stores[key];
+  map.flyTo([s.lat,s.lng],18,{duration:0.6});
+  markers[key].openPopup();
 }
 
 function smartNavigate(lat,lng,mode){
-  var ua=navigator.userAgent||navigator.vendor||window.opera;
-  var appleMode={transit:'r',driving:'d',walking:'w'};
+  var ua=navigator.userAgent||navigator.vendor||window.opera;
+  var appleMode={transit:'r',driving:'d',walking:'w'};
 
-  if(/iPad|iPhone|iPod/.test(ua)&&!window.MSStream){
-    window.location.href=`https://maps.apple.com/?daddr=${lat},${lng}&dirflg=${appleMode[mode]}`;
-  }
-  else if(/android/i.test(ua)){
-    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`;
-  }
-  else{
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`,"_blank");
-  }
+  if(/iPad|iPhone|iPod/.test(ua)&&!window.MSStream){
+    window.location.href='https://maps.apple.com/?daddr='+lat+','+lng+'&dirflg='+appleMode[mode];
+  }
+  else{
+    window.open(
+      'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+mode,
+      '_blank'
+    );
+  }
 }
 
 </script>
