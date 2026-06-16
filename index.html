@@ -15,17 +15,29 @@ body{
 }
 #map{height:100vh;width:100%;}
 
-/* 右上角門市切換 */
+/* 右上角門市切換 (更新為白底紫字，點擊/懸停變紫底白字) */
 .store-buttons{
   position:absolute;top:15px;right:15px;
   z-index:1000;display:flex;flex-direction:column;gap:8px;
 }
 .store-buttons button{
-  padding:10px 18px;border:none;border-radius:20px;
-  background:#6C2F86;color:white;font-size:14px;
-  cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.2);
+  padding:10px 18px;
+  border:2px solid #6C2F86; /* 紫色邊框 */
+  border-radius:20px;
+  background:#ffffff;       /* 預設白底 */
+  color:#6C2F86;            /* 預設紫字 */
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.2);
+  transition: background 0.3s, color 0.3s; /* 平滑過渡動畫 */
 }
-.store-buttons button:hover{background:#5a266f;}
+/* 滑鼠懸停 與 點擊後啟用狀態 */
+.store-buttons button:hover,
+.store-buttons button.active {
+  background:#6C2F86;
+  color:#ffffff;
+}
 
 /* Popup */
 .leaflet-popup-content-wrapper{
@@ -37,7 +49,7 @@ body{
 .info-text{font-size:14px;margin-bottom:4px;color:#222;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
 
-/* 導航按鈕 */
+/* 導航按鈕 (套用 CSS Mask 免做兩套圖技術) */
 .nav-row{
   display:flex;
   justify-content:center;
@@ -54,21 +66,30 @@ body{
   width:56px;
   height:56px;
   border-radius:50%;
-  background:#6C2F86;
+  background:#ffffff;           /* 預設白底 */
+  border: 2px solid #6C2F86;    /* 預設紫框 */
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:.2s;
+  transition:.3s ease;
 }
+/* 圖示遮罩區域設定 */
+.nav-icon {
+  width:35px;
+  height:35px;
+  background-color: #6C2F86;    /* 預設紫色圖示 */
+  transition: background-color .3s ease;
+}
+
+/* 導航按鈕：滑鼠懸停變色 */
 .nav-circle:hover{
-  background:#5a266f;
+  background:#6C2F86;           /* 紫底 */
   transform:scale(1.08);
 }
-.nav-circle img{
-  width:35px;   /* ✅ 放大到 35 */
-  height:35px;  /* ✅ 放大到 35 */
-  object-fit:contain;
+.nav-circle:hover .nav-icon {
+  background-color: #ffffff;    /* 白圖 */
 }
+
 .nav-label{
   font-size:11px;
   color:#444;
@@ -103,8 +124,8 @@ body{
 <div id="map"></div>
 
 <div class="store-buttons">
-  <button onclick="goToStore('tsuenwan')">荃灣門市</button>
-  <button onclick="goToStore('laichikok')">荔枝角活動室</button>
+  <button class="active" data-key="tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
+  <button data-key="laichikok" onclick="goToStore('laichikok')">荔枝角活動室</button>
 </div>
 
 <script>
@@ -144,6 +165,7 @@ var stores={
 
 var markers={};
 
+// 建立標記點與對應的彈出視窗
 for(var key in stores){
   var s=stores[key];
 
@@ -158,59 +180,4 @@ for(var key in stores){
       <div class="info-text">營業時間：${s.hours}</div>
 
       <div class="nav-row">
-
-        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'transit')">
-          <div class="nav-circle">
-            <img src="transit.png">
-          </div>
-          <div class="nav-label">公共交通</div>
-        </div>
-
-        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'driving')">
-          <div class="nav-circle">
-            <img src="drive.png">
-          </div>
-          <div class="nav-label">駕車</div>
-        </div>
-
-        <div class="nav-item" onclick="smartNavigate(${s.lat},${s.lng},'walking')">
-          <div class="nav-circle">
-            <img src="walk.png">
-          </div>
-          <div class="nav-label">步行</div>
-        </div>
-
-      </div>
-
-    </div>
-  `);
-
-  markers[key]=marker;
-}
-
-map.fitBounds(L.featureGroup(Object.values(markers)).getBounds());
-
-function goToStore(key){
-  var s=stores[key];
-  map.flyTo([s.lat,s.lng],19,{duration:.6});
-  markers[key].openPopup();
-}
-
-function smartNavigate(lat,lng,mode){
-  var ua=navigator.userAgent||navigator.vendor||window.opera;
-  var appleMode={transit:'r',driving:'d',walking:'w'};
-
-  if(/iPad|iPhone|iPod/.test(ua)&&!window.MSStream){
-    window.location.href=`https://maps.apple.com/?daddr=${lat},${lng}&dirflg=${appleMode[mode]}`;
-  }
-  else if(/android/i.test(ua)){
-    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`;
-  }
-  else{
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`,"_blank");
-  }
-}
-
-</script>
-</body>
-</html>
+        <div class="nav-item" onclick="smartNavigate(${
