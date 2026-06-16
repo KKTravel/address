@@ -22,7 +22,7 @@ body{
 }
 
 /* ======================
-   右上角門市按鈕（無框膠囊）
+   右上角門市按鈕（膠囊版）
 ====================== */
 
 .store-buttons{
@@ -47,7 +47,7 @@ body{
   letter-spacing:1px;
   cursor:pointer;
   transition:.25s ease;
-  box-shadow:0 6px 16px rgba(0,0,0,.12);
+  box-shadow:0 8px 22px rgba(108,47,134,.25);
 }
 
 .store-buttons button:hover{
@@ -107,7 +107,7 @@ body{
   box-shadow:0 6px 18px rgba(108,47,134,.18);
 }
 
-/* 預設 icon 轉品牌紫色 */
+/* 預設 icon 轉色 */
 .nav-circle img{
   width:30px;
   height:30px;
@@ -267,3 +267,8 @@ function smartNavigate(lat,lng,mode){
 map.on('click', function () {
   document.querySelectorAll('.store-buttons button')
     .forEach(btn => btn.classList.remove('active'));
+});
+
+</script>
+</body>
+</html>
