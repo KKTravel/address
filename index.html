@@ -22,7 +22,7 @@ body{
 }
 
 /* ======================
-   右上角門市按鈕（膠囊版）
+   右上角門市按鈕區（膠囊版）
 ====================== */
 
 .store-buttons{
@@ -33,6 +33,14 @@ body{
   display:flex;
   flex-direction:column;
   gap:14px;
+}
+
+/* 每列組合容器：包含左側 WhatsApp 與右側門市按鈕 */
+.store-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:flex-end;
 }
 
 .store-buttons button{
@@ -61,6 +69,42 @@ body{
   background:#6C2F86;
   color:#ffffff;
   box-shadow:0 10px 26px rgba(108,47,134,.35);
+}
+
+/* ======================
+   圓形白底 WhatsApp 按鈕
+====================== */
+
+.wa-btn{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 22px rgba(108,47,134,.25);
+  cursor:pointer;
+  transition:.25s ease;
+  text-decoration:none;
+  flex-shrink:0;
+}
+
+.wa-btn:hover{
+  transform:scale(1.1);
+  box-shadow:0 10px 26px rgba(108,47,134,.35);
+  background:#25D366; /* Hover 時變為經典 WhatsApp 綠 */
+}
+
+.wa-btn img{
+  width:24px;
+  height:24px;
+  object-fit:contain;
+}
+
+/* Hover 時讓綠色 Icon 變白 */
+.wa-btn:hover img{
+  filter:brightness(0) invert(1);
 }
 
 /* ======================
@@ -107,7 +151,6 @@ body{
   box-shadow:0 6px 18px rgba(108,47,134,.18);
 }
 
-/* 預設 icon 轉色 */
 .nav-circle img{
   width:30px;
   height:30px;
@@ -115,7 +158,6 @@ body{
   filter: brightness(0) saturate(100%) invert(17%) sepia(78%) saturate(1436%) hue-rotate(262deg) brightness(92%) contrast(92%);
 }
 
-/* Hover / Active */
 .nav-item:hover .nav-circle,
 .nav-item.active .nav-circle{
   background:#6C2F86;
@@ -165,21 +207,40 @@ body{
 <div id="map"></div>
 
 <div class="store-buttons">
-  <button id="btn-tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
-  <button id="btn-mongkok" onclick="goToStore('mongkok')">旺角門市</button>
-  <button id="btn-laichikok" onclick="goToStore('laichikok')">荔枝角活動室</button>
+  <!-- 荃灣門市組 -->
+  <div class="store-row">
+    <a id="wa-tsuenwan" class="wa-btn" target="_blank" title="WhatsApp 查詢">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
+    <button id="btn-tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
+  </div>
+
+  <!-- 旺角門市組 -->
+  <div class="store-row">
+    <a id="wa-mongkok" class="wa-btn" target="_blank" title="WhatsApp 查詢">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
+    <button id="btn-mongkok" onclick="goToStore('mongkok')">旺角門市</button>
+  </div>
+
+  <!-- 荔枝角活動室組 -->
+  <div class="store-row">
+    <a id="wa-laichikok" class="wa-btn" target="_blank" title="WhatsApp 查詢">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
+    <button id="btn-laichikok" onclick="goToStore('laichikok')">荔枝角活動室</button>
+  </div>
 </div>
 
 <script>
 
-// 將 maxZoom 鎖定在 18，避免手動放大到 19 級時出現灰屏
 var map=L.map('map',{minZoom:11,maxZoom:18});
 
 L.tileLayer(
 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
 {
   attribution:'Tiles © Esri',
-  maxZoom:18 // 確保圖層不會發送超過 18 級的請求
+  maxZoom:18
 }
 ).addTo(map);
 
@@ -192,6 +253,7 @@ var dotIcon=L.divIcon({
   iconAnchor:[18,48]
 });
 
+// 在 stores 物件中加上 whatsapp 號碼（需帶國家代碼，如 852）
 var stores={
   tsuenwan:{
     name:"荃灣門市",
@@ -199,6 +261,7 @@ var stores={
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
     phone:"5977 6032 / 5961 6332",
+    whatsapp:"85259776032", // 預設開啟的第一個號碼
     hours:"10:00 - 19:00"
   },
   mongkok:{
@@ -207,6 +270,7 @@ var stores={
     address:"旺角荷李活商業中心11樓1101室",
     mtr:"（旺角港鐵站 E2 出口）",
     phone:"",
+    whatsapp:"", // 若沒有電話則留空，按鈕會自動隱藏
     hours:"10:00 - 19:00"
   },
   laichikok:{
@@ -215,15 +279,18 @@ var stores={
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
     phone:"-",
+    whatsapp:"", // 若為空則自動隱藏
     hours:"9:00 - 18:00"
   }
 };
 
 var markers={};
 
+// 初始化地圖標記與 WhatsApp 連結
 for(var key in stores){
   var s=stores[key];
 
+  // 1. 地圖標記
   var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
   .addTo(map)
   .bindPopup(
@@ -243,6 +310,16 @@ for(var key in stores){
   );
 
   markers[key]=marker;
+
+  // 2. 自動綁定 WhatsApp 連結，無號碼則隱藏
+  var waElem = document.getElementById('wa-' + key);
+  if(waElem){
+    if(s.whatsapp && s.whatsapp.trim() !== "" && s.whatsapp !== "-"){
+      waElem.href = "https://wa.me/" + s.whatsapp;
+    } else {
+      waElem.style.display = "none"; // 沒有 WhatsApp 號碼時自動隱藏
+    }
+  }
 }
 
 function createNavButton(lat,lng,mode,icon,label){
@@ -254,7 +331,6 @@ function createNavButton(lat,lng,mode,icon,label){
 
 function goToStore(key){
   var s=stores[key];
-  // 將點擊飛入時的縮放層級設為 17，既清晰又留有一級滾輪緩衝
   map.flyTo([s.lat,s.lng],17,{duration:0.6});
   markers[key].openPopup();
 
