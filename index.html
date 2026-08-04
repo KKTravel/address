@@ -93,18 +93,14 @@ body{
 .wa-btn:hover{
   transform:scale(1.1);
   box-shadow:0 10px 26px rgba(108,47,134,.35);
-  background:#25D366; /* Hover 時變為經典 WhatsApp 綠 */
+  background:#25D366; /* 懸停時僅改變背景色為 WhatsApp 綠 */
 }
 
 .wa-btn img{
   width:24px;
   height:24px;
   object-fit:contain;
-}
-
-/* Hover 時讓綠色 Icon 變白 */
-.wa-btn:hover img{
-  filter:brightness(0) invert(1);
+  /* 不加任何濾鏡，保留原有彩色 Logo */
 }
 
 /* ======================
@@ -253,7 +249,6 @@ var dotIcon=L.divIcon({
   iconAnchor:[18,48]
 });
 
-// 在 stores 物件中加上 whatsapp 號碼（需帶國家代碼，如 852）
 var stores={
   tsuenwan:{
     name:"荃灣門市",
@@ -261,7 +256,7 @@ var stores={
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
     phone:"5977 6032 / 5961 6332",
-    whatsapp:"85259776032", // 預設開啟的第一個號碼
+    whatsapp:"85259776032",
     hours:"10:00 - 19:00"
   },
   mongkok:{
@@ -270,7 +265,7 @@ var stores={
     address:"旺角荷李活商業中心11樓1101室",
     mtr:"（旺角港鐵站 E2 出口）",
     phone:"",
-    whatsapp:"", // 若沒有電話則留空，按鈕會自動隱藏
+    whatsapp:"", // 留空：按鈕會自動隱藏
     hours:"10:00 - 19:00"
   },
   laichikok:{
@@ -279,14 +274,13 @@ var stores={
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
     phone:"-",
-    whatsapp:"", // 若為空則自動隱藏
+    whatsapp:"", // 留空：按鈕會自動隱藏
     hours:"9:00 - 18:00"
   }
 };
 
 var markers={};
 
-// 初始化地圖標記與 WhatsApp 連結
 for(var key in stores){
   var s=stores[key];
 
@@ -311,13 +305,13 @@ for(var key in stores){
 
   markers[key]=marker;
 
-  // 2. 自動綁定 WhatsApp 連結，無號碼則隱藏
+  // 2. 自動綁定 WhatsApp 連結，無號碼時隱藏按鈕
   var waElem = document.getElementById('wa-' + key);
   if(waElem){
     if(s.whatsapp && s.whatsapp.trim() !== "" && s.whatsapp !== "-"){
       waElem.href = "https://wa.me/" + s.whatsapp;
     } else {
-      waElem.style.display = "none"; // 沒有 WhatsApp 號碼時自動隱藏
+      waElem.style.display = "none";
     }
   }
 }
