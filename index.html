@@ -172,11 +172,15 @@ body{
 
 <script>
 
-var map=L.map('map',{minZoom:11,maxZoom:19});
+// 將 maxZoom 鎖定在 18，避免手動放大到 19 級時出現灰屏
+var map=L.map('map',{minZoom:11,maxZoom:18});
 
 L.tileLayer(
 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-{attribution:'Tiles © Esri'}
+{
+  attribution:'Tiles © Esri',
+  maxZoom:18 // 確保圖層不會發送超過 18 級的請求
+}
 ).addTo(map);
 
 map.setView([22.35,114.14],12);
@@ -250,7 +254,8 @@ function createNavButton(lat,lng,mode,icon,label){
 
 function goToStore(key){
   var s=stores[key];
-  map.flyTo([s.lat,s.lng],18,{duration:0.6});
+  // 將點擊飛入時的縮放層級設為 17，既清晰又留有一級滾輪緩衝
+  map.flyTo([s.lat,s.lng],17,{duration:0.6});
   markers[key].openPopup();
 
   document.querySelectorAll('.store-buttons button')
