@@ -166,6 +166,7 @@ body{
 
 <div class="store-buttons">
   <button id="btn-tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
+  <button id="btn-mongkok" onclick="goToStore('mongkok')">旺角門市</button>
   <button id="btn-laichikok" onclick="goToStore('laichikok')">荔枝角活動室</button>
 </div>
 
@@ -178,7 +179,7 @@ L.tileLayer(
 {attribution:'Tiles © Esri'}
 ).addTo(map);
 
-map.setView([22.36,114.13],12);
+map.setView([22.35,114.14],12);
 
 var dotIcon=L.divIcon({
   className:"",
@@ -194,6 +195,14 @@ var stores={
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
     phone:"5977 6032 / 5961 6332",
+    hours:"10:00 - 19:00"
+  },
+  mongkok:{
+    name:"旺角門市",
+    lat:22.31675,lng:114.17015,
+    address:"旺角荷李活商業中心11樓1101室",
+    mtr:"（旺角港鐵站 E2 出口 / 油麻地港鐵站 A1 出口）",
+    phone:"",
     hours:"10:00 - 19:00"
   },
   laichikok:{
