@@ -1,3 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>門市地址</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+
+#map{
+  height:100vh;
+  width:100%;
+  position:relative;
+  z-index:1;
+}
+
 /* ======================
    左下角公司 LOGO（無白底、全穿透）
 ====================== */
@@ -8,18 +31,381 @@
   left:20px;
   z-index:9999;
   
-  /* 完全穿透，不擋住地圖拖曳 */
+  /* 讓容器與圖片完全穿透，點擊與拖曳手勢直達地圖 */
   pointer-events:none;
   user-select:none;
 }
 
 .brand-logo img{
-  height:42px; /* 移除白底後適度加大，讓文字與圖標更清晰 */
+  height:42px; /* 無白底時微調尺寸，保持醒目 */
   width:auto;
   object-fit:contain;
   pointer-events:none;
   -webkit-user-drag:none;
-  
-  /* 可選：加上微微的文字陰影，確保在淡色地圖上依然清晰 */
-  filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+  /* 加上一點點柔和陰影，避免地圖顏色偏白時看不清標誌 */
+  filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.25));
 }
+
+/* ======================
+   右上角門市按鈕區（膠囊版）
+====================== */
+
+.store-buttons{
+  position:absolute;
+  top:20px;
+  right:20px;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.store-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+.store-buttons button{
+  min-width:140px;
+  padding:12px 26px;
+  border-radius:40px;
+  border:none;
+  background:#ffffff;
+  color:#6C2F86;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition:.25s ease;
+  box-shadow:0 8px 22px rgba(108,47,134,.25);
+
+  /* 消除點擊白線/閃爍/焦點框 */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.store-buttons button:focus{
+  outline: none;
+}
+
+.store-buttons button:hover{
+  background:#6C2F86;
+  color:#ffffff;
+  box-shadow:0 10px 26px rgba(108,47,134,.35);
+  transform:translateY(-2px);
+}
+
+.store-buttons button.active{
+  background:#6C2F86;
+  color:#ffffff;
+  box-shadow:0 10px 26px rgba(108,47,134,.35);
+}
+
+/* ======================
+   圓形白底 WhatsApp 按鈕
+====================== */
+
+.wa-btn{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 22px rgba(108,47,134,.25);
+  cursor:pointer;
+  transition:.25s ease;
+  text-decoration:none;
+  flex-shrink:0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wa-btn:hover{
+  transform:scale(1.1);
+  box-shadow:0 10px 26px rgba(108,47,134,.35);
+  background:#25D366;
+}
+
+.wa-btn img{
+  width:30px;
+  height:30px;
+  object-fit:contain;
+}
+
+/* ======================
+   Popup 設計
+====================== */
+
+.leaflet-popup-content-wrapper{
+  border-radius:14px;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+
+.info-card{max-width:300px;}
+.info-title{font-size:16px;font-weight:600;margin-bottom:8px;}
+.info-text{font-size:14px;margin-bottom:4px;color:#222;}
+.mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
+
+/* ======================
+   導航按鈕（陰影版）
+====================== */
+
+.nav-row{
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  margin-top:16px;
+}
+
+.nav-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  cursor:pointer;
+}
+
+.nav-circle{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.25s;
+  box-shadow:0 6px 18px rgba(108,47,134,.18);
+}
+
+.nav-circle img{
+  width:30px;
+  height:30px;
+  object-fit:contain;
+  filter: brightness(0) saturate(100%) invert(17%) sepia(78%) saturate(1436%) hue-rotate(262deg) brightness(92%) contrast(92%);
+}
+
+.nav-item:hover .nav-circle,
+.nav-item.active .nav-circle{
+  background:#6C2F86;
+  box-shadow:0 8px 22px rgba(108,47,134,.35);
+}
+
+.nav-item:hover img,
+.nav-item.active img{
+  filter: brightness(0) invert(1);
+}
+
+.nav-label{
+  font-size:11px;
+  color:#444;
+  margin-top:6px;
+}
+
+/* ======================
+   紫色定位圖示
+====================== */
+
+.google-pin{
+  position:relative;
+  width:29px;
+  height:29px;
+  background:#6C2F86;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  border:2.5px solid white;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+
+.pin-inner{
+  position:absolute;
+  width:12px;
+  height:12px;
+  background:white;
+  border-radius:50%;
+  top:8px;
+  left:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<!-- 左下角公司 LOGO（直接透明浮層） -->
+<div class="brand-logo">
+  <img src="LOGO.png" alt="Company Logo">
+</div>
+
+<div class="store-buttons">
+  <!-- 荃灣門市組 -->
+  <div class="store-row">
+    <a id="wa-tsuenwan" class="wa-btn" target="_blank" title="WhatsApp 查詢">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
+    <button id="btn-tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
+  </div>
+
+  <!-- 旺角門市組 -->
+  <div class="store-row">
+    <a id="wa-mongkok" class="wa-btn" target="_blank" title="WhatsApp 查詢">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
+    <button id="btn-mongkok" onclick="goToStore('mongkok')">旺角門市</button>
+  </div>
+
+  <!-- 荔枝角活動室組 -->
+  <div class="store-row">
+    <a id="wa-laichikok" class="wa-btn" target="_blank" title="WhatsApp 查詢">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
+    <button id="btn-laichikok" onclick="goToStore('laichikok')">荔枝角活動室</button>
+  </div>
+</div>
+
+<script>
+
+var map=L.map('map',{minZoom:11,maxZoom:18});
+
+L.tileLayer(
+'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+{
+  attribution:'Tiles © Esri',
+  maxZoom:18
+}
+).addTo(map);
+
+map.setView([22.35,114.14],12);
+
+var dotIcon=L.divIcon({
+  className:"",
+  html:'<div class="google-pin"><div class="pin-inner"></div></div>',
+  iconSize:[36,48],
+  iconAnchor:[18,48]
+});
+
+var stores={
+  tsuenwan:{
+    name:"荃灣門市",
+    lat:22.37367,lng:114.11634,
+    address:"荃灣南豐中心17樓1714室",
+    mtr:"（荃灣港鐵站 A 出口）",
+    phone:"5977 6032 / 5961 6332",
+    whatsapp:"85259776032",
+    hours:"10:00 - 19:00"
+  },
+  mongkok:{
+    name:"旺角門市",
+    lat:22.31675,lng:114.17015,
+    address:"旺角荷李活商業中心11樓1101室",
+    mtr:"（旺角港鐵站 E2 出口）",
+    phone:"",
+    whatsapp:"", // 留空：自動隱藏 WhatsApp 圖示
+    hours:"10:00 - 19:00"
+  },
+  laichikok:{
+    name:"荔枝角活動室",
+    lat:22.3367,lng:114.1494,
+    address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
+    mtr:"（荔枝角港鐵站 D2 出口）",
+    phone:"-",
+    whatsapp:"", // 留空：自動隱藏 WhatsApp 圖示
+    hours:"9:00 - 18:00"
+  }
+};
+
+var markers={};
+
+for(var key in stores){
+  var s=stores[key];
+
+  // 1. 建立標記
+  var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
+  .addTo(map)
+  .bindPopup(
+    '<div class="info-card">'+
+      '<div class="info-title">'+s.name+'</div>'+
+      '<div class="info-text">地址：'+s.address+'</div>'+
+      '<div class="mtr-note">'+s.mtr+'</div>'+
+      '<div class="info-text">電話：'+s.phone+'</div>'+
+      '<div class="info-text">營業時間：'+s.hours+'</div>'+
+
+      '<div class="nav-row">'+
+        createNavButton(s.lat,s.lng,'transit','transit.png','公共交通')+
+        createNavButton(s.lat,s.lng,'driving','drive.png','駕車')+
+        createNavButton(s.lat,s.lng,'walking','walk.png','步行')+
+      '</div>'+
+    '</div>'
+  );
+
+  markers[key]=marker;
+
+  // 2. 綁定 WhatsApp 連結，無電話自動隱藏
+  var waElem = document.getElementById('wa-' + key);
+  if(waElem){
+    if(s.whatsapp && s.whatsapp.trim() !== "" && s.whatsapp !== "-"){
+      waElem.href = "https://wa.me/" + s.whatsapp;
+    } else {
+      waElem.style.display = "none";
+    }
+  }
+}
+
+function createNavButton(lat,lng,mode,icon,label){
+  return '<div class="nav-item" onclick="selectNav(this); smartNavigate('+lat+','+lng+',\''+mode+'\')">'+
+           '<div class="nav-circle"><img src="'+icon+'"></div>'+
+           '<div class="nav-label">'+label+'</div>'+
+         '</div>';
+}
+
+function goToStore(key){
+  var s=stores[key];
+  map.flyTo([s.lat,s.lng],17,{duration:0.6});
+  markers[key].openPopup();
+
+  document.querySelectorAll('.store-buttons button')
+    .forEach(btn=>btn.classList.remove('active'));
+
+  document.getElementById('btn-'+key).classList.add('active');
+}
+
+function selectNav(el){
+  el.parentElement.querySelectorAll('.nav-item')
+    .forEach(item=>item.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* 智能判斷：Apple 裝置跳轉 Apple Maps，Android / Windows 跳轉 Google Maps */
+function smartNavigate(lat,lng,mode){
+  var isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
+
+  if (isApple) {
+    var appleMode = 'd';
+    if (mode === 'transit') appleMode = 'r';
+    if (mode === 'walking') appleMode = 'w';
+
+    window.open(
+      'http://maps.apple.com/?daddr=' + lat + ',' + lng + '&dirflg=' + appleMode,
+      '_blank'
+    );
+  } else {
+    window.open(
+      'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&travelmode=' + mode,
+      '_blank'
+    );
+  }
+}
+
+/* 點擊地圖空白處 → 復原按鈕白底 */
+map.on('click', function () {
+  document.querySelectorAll('.store-buttons button')
+    .forEach(btn => btn.classList.remove('active'));
+});
+
+</script>
+</body>
+</html>
