@@ -22,6 +22,36 @@ body{
 }
 
 /* ======================
+   左下角公司 LOGO（支援全點擊穿透）
+====================== */
+
+.brand-logo{
+  position:absolute;
+  bottom:24px;
+  left:20px;
+  z-index:9999;
+  background:#ffffff;
+  padding:8px 18px;
+  border-radius:30px;
+  box-shadow:0 8px 22px rgba(108,47,134,.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  
+  /* 讓容器與圖片完全穿透，拖曳、雙擊等手勢可直接作用在地圖上 */
+  pointer-events:none;
+  user-select:none;
+}
+
+.brand-logo img{
+  height:36px;
+  width:auto;
+  object-fit:contain;
+  pointer-events:none;
+  -webkit-user-drag:none;
+}
+
+/* ======================
    右上角門市按鈕區（膠囊版）
 ====================== */
 
@@ -35,7 +65,6 @@ body{
   gap:14px;
 }
 
-/* 每列組合容器：包含左側 WhatsApp 與右側門市按鈕 */
 .store-row{
   display:flex;
   align-items:center;
@@ -56,6 +85,15 @@ body{
   cursor:pointer;
   transition:.25s ease;
   box-shadow:0 8px 22px rgba(108,47,134,.25);
+
+  /* 消除點擊白線/閃爍/焦點框 */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.store-buttons button:focus{
+  outline: none;
 }
 
 .store-buttons button:hover{
@@ -76,8 +114,8 @@ body{
 ====================== */
 
 .wa-btn{
-  width:44px;
-  height:44px;
+  width:50px;
+  height:50px;
   border-radius:50%;
   background:#ffffff;
   display:flex;
@@ -88,6 +126,8 @@ body{
   transition:.25s ease;
   text-decoration:none;
   flex-shrink:0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .wa-btn:hover{
@@ -97,10 +137,9 @@ body{
 }
 
 .wa-btn img{
-  width:35px;
-  height:35px;
+  width:30px;
+  height:30px;
   object-fit:contain;
-  /* 不加任何濾鏡，保留原有彩色 Logo */
 }
 
 /* ======================
@@ -202,6 +241,11 @@ body{
 
 <div id="map"></div>
 
+<!-- 左下角公司 LOGO -->
+<div class="brand-logo">
+  <img src="LOGO.png" alt="Company Logo">
+</div>
+
 <div class="store-buttons">
   <!-- 荃灣門市組 -->
   <div class="store-row">
@@ -230,6 +274,7 @@ body{
 
 <script>
 
+// 地圖縮放層級最大限制為 18 級，避免灰屏
 var map=L.map('map',{minZoom:11,maxZoom:18});
 
 L.tileLayer(
@@ -255,7 +300,7 @@ var stores={
     lat:22.37367,lng:114.11634,
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
-    phone:"5977 6032",
+    phone:"5977 6032 / 5961 6332",
     whatsapp:"85259776032",
     hours:"10:00 - 19:00"
   },
@@ -265,7 +310,7 @@ var stores={
     address:"旺角荷李活商業中心11樓1101室",
     mtr:"（旺角港鐵站 E2 出口）",
     phone:"",
-    whatsapp:"", // 留空：按鈕會自動隱藏
+    whatsapp:"", // 無號碼時自動隱藏圖示
     hours:"10:00 - 19:00"
   },
   laichikok:{
@@ -274,7 +319,7 @@ var stores={
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
     phone:"-",
-    whatsapp:"", // 留空：按鈕會自動隱藏
+    whatsapp:"", // 無號碼時自動隱藏圖示
     hours:"9:00 - 18:00"
   }
 };
@@ -284,7 +329,7 @@ var markers={};
 for(var key in stores){
   var s=stores[key];
 
-  // 1. 地圖標記
+  // 1. 建立標記
   var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
   .addTo(map)
   .bindPopup(
@@ -305,7 +350,7 @@ for(var key in stores){
 
   markers[key]=marker;
 
-  // 2. 自動綁定 WhatsApp 連結，無號碼時隱藏按鈕
+  // 2. 綁定 WhatsApp 連結，無號碼則自動隱藏按鈕
   var waElem = document.getElementById('wa-' + key);
   if(waElem){
     if(s.whatsapp && s.whatsapp.trim() !== "" && s.whatsapp !== "-"){
@@ -340,14 +385,28 @@ function selectNav(el){
   el.classList.add('active');
 }
 
+/* 智能判斷：Apple 裝置開啟 Apple Maps，Android / Windows 開啟 Google Maps */
 function smartNavigate(lat,lng,mode){
-  window.open(
-    'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+mode,
-    '_blank'
-  );
+  var isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
+
+  if (isApple) {
+    var appleMode = 'd';
+    if (mode === 'transit') appleMode = 'r';
+    if (mode === 'walking') appleMode = 'w';
+
+    window.open(
+      'http://maps.apple.com/?daddr=' + lat + ',' + lng + '&dirflg=' + appleMode,
+      '_blank'
+    );
+  } else {
+    window.open(
+      'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&travelmode=' + mode,
+      '_blank'
+    );
+  }
 }
 
-/* 點地圖空白 → 按鈕恢復白底 */
+/* 點擊地圖空白處 → 復原按鈕白底 */
 map.on('click', function () {
   document.querySelectorAll('.store-buttons button')
     .forEach(btn => btn.classList.remove('active'));
