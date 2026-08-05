@@ -22,7 +22,7 @@ body{
 }
 
 /* ======================
-   左下角公司 LOGO（無白底、全穿透）
+   左下角公司 LOGO（響應式大小）
 ====================== */
 
 .brand-logo{
@@ -34,6 +34,7 @@ body{
   user-select:none;
 }
 
+/* 手機版尺寸 */
 .brand-logo img{
   height:42px;
   width:auto;
@@ -41,6 +42,13 @@ body{
   pointer-events:none;
   -webkit-user-drag:none;
   filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.25));
+}
+
+/* 電腦版尺寸 (螢幕寬度 768px 以上) */
+@media (min-width: 768px) {
+  .brand-logo img{
+    height:65px;
+  }
 }
 
 /* ======================
@@ -148,7 +156,7 @@ body{
 .info-text{font-size:14px;margin-bottom:4px;color:#222;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
 
-/* 加大及美化關閉按鈕 (×) */
+/* 美化及加大關閉按鈕 (×) */
 .leaflet-container a.leaflet-popup-close-button {
   width: 32px !important;
   height: 32px !important;
