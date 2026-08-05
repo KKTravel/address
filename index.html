@@ -140,12 +140,32 @@ body{
 .leaflet-popup-content-wrapper{
   border-radius:14px;
   box-shadow:0 12px 28px rgba(0,0,0,.18);
+  padding-top:6px;
 }
 
 .info-card{max-width:300px;}
-.info-title{font-size:16px;font-weight:600;margin-bottom:8px;}
+.info-title{font-size:16px;font-weight:600;margin-bottom:8px;padding-right:20px;}
 .info-text{font-size:14px;margin-bottom:4px;color:#222;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
+
+/* 加大及美化關閉按鈕 (×) */
+.leaflet-container a.leaflet-popup-close-button {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 22px !important;
+  line-height: 30px !important;
+  color: #6C2F86 !important;
+  top: 10px !important;
+  right: 10px !important;
+  border-radius: 50% !important;
+  transition: .25s ease !important;
+  outline: none !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  background: #6C2F86 !important;
+  color: #ffffff !important;
+}
 
 /* ======================
    導航按鈕（陰影版）
@@ -303,7 +323,7 @@ var stores={
     phone:"",
     whatsapp:"",
     hours:"10:00 - 19:00",
-    query:"旺角荷李活商業中心" // 外跳地圖時顯示的大廈名稱
+    query:"旺角荷李活商業中心"
   },
   laichikok:{
     name:"荔枝角活動室",
@@ -322,7 +342,6 @@ var markers={};
 for(var key in stores){
   var s=stores[key];
 
-  // 1. 建立標記
   var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
   .addTo(map)
   .bindPopup(
@@ -343,7 +362,6 @@ for(var key in stores){
 
   markers[key]=marker;
 
-  // 2. 綁定 WhatsApp 連結，無電話自動隱藏
   var waElem = document.getElementById('wa-' + key);
   if(waElem){
     if(s.whatsapp && s.whatsapp.trim() !== "" && s.whatsapp !== "-"){
@@ -378,7 +396,6 @@ function selectNav(el){
   el.classList.add('active');
 }
 
-/* 智能導航：使用地標名稱 (query) 確保 Google/Apple 地圖顯示「荷李活商業中心」 */
 function smartNavigate(lat,lng,query,mode){
   var isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
 
@@ -399,7 +416,6 @@ function smartNavigate(lat,lng,query,mode){
   }
 }
 
-/* 點擊地圖空白處 → 復原按鈕白底 */
 map.on('click', function () {
   document.querySelectorAll('.store-buttons button')
     .forEach(btn => btn.classList.remove('active'));
