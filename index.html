@@ -21,8 +21,13 @@ body{
   z-index:1;
 }
 
+/* 隱藏右下角的 Leaflet / Google Maps 版權標記文字 */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
 /* ======================
-   左下角公司 LOGO（響應式大小）
+   左下角公司 LOGO（響應式大小、全穿透）
 ====================== */
 
 .brand-logo{
@@ -36,8 +41,8 @@ body{
 
 /* 手機版尺寸 */
 .brand-logo img{
-  height:42px;
-  width:auto;
+  height:42px !important;
+  width:auto !important;
   object-fit:contain;
   pointer-events:none;
   -webkit-user-drag:none;
@@ -45,9 +50,9 @@ body{
 }
 
 /* 電腦版尺寸 (螢幕寬度 768px 以上) */
-@media (min-width: 768px) {
+@media screen and (min-width: 768px) {
   .brand-logo img{
-    height:65px;
+    height:75px !important;
   }
 }
 
@@ -295,7 +300,7 @@ body{
 
 var map=L.map('map',{minZoom:11,maxZoom:20});
 
-/* 切換為 Google Maps 圖層 (標準地圖風格) */
+/* 使用 Google Maps 地圖底圖 */
 L.tileLayer(
 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
 {
@@ -406,6 +411,7 @@ function selectNav(el){
   el.classList.add('active');
 }
 
+/* 智能導航：Apple 裝置開啟 Apple Maps，Android / Windows 開啟 Google Maps */
 function smartNavigate(lat,lng,query,mode){
   var isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
 
