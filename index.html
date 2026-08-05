@@ -293,13 +293,15 @@ body{
 
 <script>
 
-var map=L.map('map',{minZoom:11,maxZoom:18});
+var map=L.map('map',{minZoom:11,maxZoom:20});
 
+/* 切換為 Google Maps 圖層 (標準地圖風格) */
 L.tileLayer(
-'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
 {
-  attribution:'Tiles © Esri',
-  maxZoom:18
+  maxZoom: 20,
+  subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+  attribution: '&copy; Google Maps'
 }
 ).addTo(map);
 
