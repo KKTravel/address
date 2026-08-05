@@ -30,19 +30,16 @@ body{
   bottom:24px;
   left:20px;
   z-index:9999;
-  
-  /* 讓容器與圖片完全穿透，點擊與拖曳手勢直達地圖 */
   pointer-events:none;
   user-select:none;
 }
 
 .brand-logo img{
-  height:60px; /* 無白底時微調尺寸，保持醒目 */
+  height:42px;
   width:auto;
   object-fit:contain;
   pointer-events:none;
   -webkit-user-drag:none;
-  /* 加上一點點柔和陰影，避免地圖顏色偏白時看不清標誌 */
   filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.25));
 }
 
@@ -81,7 +78,6 @@ body{
   transition:.25s ease;
   box-shadow:0 8px 22px rgba(108,47,134,.25);
 
-  /* 消除點擊白線/閃爍/焦點框 */
   outline: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -236,7 +232,7 @@ body{
 
 <div id="map"></div>
 
-<!-- 左下角公司 LOGO（直接透明浮層） -->
+<!-- 左下角公司 LOGO -->
 <div class="brand-logo">
   <img src="LOGO.png" alt="Company Logo">
 </div>
@@ -296,7 +292,8 @@ var stores={
     mtr:"（荃灣港鐵站 A 出口）",
     phone:"5977 6032 / 5961 6332",
     whatsapp:"85259776032",
-    hours:"10:00 - 19:00"
+    hours:"10:00 - 19:00",
+    query:"荃灣南豐中心"
   },
   mongkok:{
     name:"旺角門市",
@@ -304,8 +301,9 @@ var stores={
     address:"旺角荷李活商業中心11樓1101室",
     mtr:"（旺角港鐵站 E2 出口）",
     phone:"",
-    whatsapp:"", // 留空：自動隱藏 WhatsApp 圖示
-    hours:"10:00 - 19:00"
+    whatsapp:"",
+    hours:"10:00 - 19:00",
+    query:"旺角荷李活商業中心" // 外跳地圖時顯示的大廈名稱
   },
   laichikok:{
     name:"荔枝角活動室",
@@ -313,8 +311,9 @@ var stores={
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
     phone:"-",
-    whatsapp:"", // 留空：自動隱藏 WhatsApp 圖示
-    hours:"9:00 - 18:00"
+    whatsapp:"",
+    hours:"9:00 - 18:00",
+    query:"新昌工業大廈"
   }
 };
 
@@ -335,9 +334,9 @@ for(var key in stores){
       '<div class="info-text">營業時間：'+s.hours+'</div>'+
 
       '<div class="nav-row">'+
-        createNavButton(s.lat,s.lng,'transit','transit.png','公共交通')+
-        createNavButton(s.lat,s.lng,'driving','drive.png','駕車')+
-        createNavButton(s.lat,s.lng,'walking','walk.png','步行')+
+        createNavButton(s.lat,s.lng,s.query,'transit','transit.png','公共交通')+
+        createNavButton(s.lat,s.lng,s.query,'driving','drive.png','駕車')+
+        createNavButton(s.lat,s.lng,s.query,'walking','walk.png','步行')+
       '</div>'+
     '</div>'
   );
@@ -355,8 +354,8 @@ for(var key in stores){
   }
 }
 
-function createNavButton(lat,lng,mode,icon,label){
-  return '<div class="nav-item" onclick="selectNav(this); smartNavigate('+lat+','+lng+',\''+mode+'\')">'+
+function createNavButton(lat,lng,query,mode,icon,label){
+  return '<div class="nav-item" onclick="selectNav(this); smartNavigate('+lat+','+lng+',\''+encodeURIComponent(query)+'\',\''+mode+'\')">'+
            '<div class="nav-circle"><img src="'+icon+'"></div>'+
            '<div class="nav-label">'+label+'</div>'+
          '</div>';
@@ -379,8 +378,8 @@ function selectNav(el){
   el.classList.add('active');
 }
 
-/* 智能判斷：Apple 裝置跳轉 Apple Maps，Android / Windows 跳轉 Google Maps */
-function smartNavigate(lat,lng,mode){
+/* 智能導航：使用地標名稱 (query) 確保 Google/Apple 地圖顯示「荷李活商業中心」 */
+function smartNavigate(lat,lng,query,mode){
   var isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
 
   if (isApple) {
@@ -389,12 +388,12 @@ function smartNavigate(lat,lng,mode){
     if (mode === 'walking') appleMode = 'w';
 
     window.open(
-      'http://maps.apple.com/?daddr=' + lat + ',' + lng + '&dirflg=' + appleMode,
+      'http://maps.apple.com/?q=' + query + '&daddr=' + lat + ',' + lng + '&dirflg=' + appleMode,
       '_blank'
     );
   } else {
     window.open(
-      'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&travelmode=' + mode,
+      'https://www.google.com/maps/dir/?api=1&destination=' + query + '&travelmode=' + mode,
       '_blank'
     );
   }
