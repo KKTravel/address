@@ -22,7 +22,7 @@ body{
 }
 
 /* ======================
-   極簡版權標記（符合官網發佈規範）
+   極簡版權標記
 ====================== */
 .leaflet-container .leaflet-control-attribution {
   background: rgba(255, 255, 255, 0.7);
@@ -33,7 +33,7 @@ body{
 }
 
 /* ======================
-   左下角公司 LOGO（響應式大小、全穿透）
+   左下角公司 LOGO
 ====================== */
 
 .brand-logo{
@@ -45,7 +45,6 @@ body{
   user-select:none;
 }
 
-/* 手機版尺寸 */
 .brand-logo img{
   height:42px !important;
   width:auto !important;
@@ -55,7 +54,6 @@ body{
   filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.25));
 }
 
-/* 電腦版尺寸 (螢幕寬度 768px 以上) */
 @media screen and (min-width: 768px) {
   .brand-logo img{
     height:75px !important;
@@ -63,7 +61,7 @@ body{
 }
 
 /* ======================
-   右上角門市按鈕區（膠囊版）
+   右上角門市按鈕區
 ====================== */
 
 .store-buttons{
@@ -96,31 +94,26 @@ body{
   cursor:pointer;
   transition:.25s ease;
   box-shadow:0 8px 22px rgba(108,47,134,.25);
-
   outline: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
-.store-buttons button:focus{
-  outline: none;
-}
+.store-buttons button:focus{ outline: none; }
 
-.store-buttons button:hover{
-  background:#6C2F86;
-  color:#ffffff;
-  box-shadow:0 10px 26px rgba(108,47,134,.35);
-  transform:translateY(-2px);
-}
-
+.store-buttons button:hover,
 .store-buttons button.active{
   background:#6C2F86;
   color:#ffffff;
   box-shadow:0 10px 26px rgba(108,47,134,.35);
 }
 
+.store-buttons button:hover{
+  transform:translateY(-2px);
+}
+
 /* ======================
-   圓形白底 WhatsApp 按鈕
+   圓形 WhatsApp 按鈕
 ====================== */
 
 .wa-btn{
@@ -167,7 +160,6 @@ body{
 .info-text{font-size:14px;margin-bottom:4px;color:#222;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
 
-/* 美化及加大關閉按鈕 (×) */
 .leaflet-container a.leaflet-popup-close-button {
   width: 32px !important;
   height: 32px !important;
@@ -187,7 +179,7 @@ body{
 }
 
 /* ======================
-   導航按鈕（陰影版）
+   導航按鈕
 ====================== */
 
 .nav-row{
@@ -271,13 +263,11 @@ body{
 
 <div id="map"></div>
 
-<!-- 左下角公司 LOGO -->
 <div class="brand-logo">
   <img src="LOGO.png" alt="Company Logo">
 </div>
 
 <div class="store-buttons">
-  <!-- 荃灣門市組 -->
   <div class="store-row">
     <a id="wa-tsuenwan" class="wa-btn" target="_blank" title="WhatsApp 查詢">
       <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
@@ -285,7 +275,6 @@ body{
     <button id="btn-tsuenwan" onclick="goToStore('tsuenwan')">荃灣門市</button>
   </div>
 
-  <!-- 旺角門市組 -->
   <div class="store-row">
     <a id="wa-mongkok" class="wa-btn" target="_blank" title="WhatsApp 查詢">
       <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
@@ -293,7 +282,6 @@ body{
     <button id="btn-mongkok" onclick="goToStore('mongkok')">旺角門市</button>
   </div>
 
-  <!-- 荔枝角活動室組 -->
   <div class="store-row">
     <a id="wa-laichikok" class="wa-btn" target="_blank" title="WhatsApp 查詢">
       <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
@@ -331,14 +319,14 @@ var dotIcon=L.divIcon({
   iconAnchor:[18,48]
 });
 
+// 已簡化資料格式，不需再手動填寫 whatsapp 欄位
 var stores={
   tsuenwan:{
     name:"荃灣門市",
     lat:22.37367,lng:114.11634,
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
-    phone:"5977 6032",
-    whatsapp:"85259776032",
+    phone:"5977 6032", // 填寫電話後，會自動在後台轉為 85259776032 並顯示 WhatsApp 按鈕
     hours:"10:00 - 19:00",
     query:"荃灣南豐中心"
   },
@@ -347,8 +335,7 @@ var stores={
     lat:22.31675,lng:114.17015,
     address:"旺角荷李活商業中心11樓1101室",
     mtr:"（旺角港鐵站 E2 出口）",
-    phone:"", // 留空：Popup 卡片內會自動隱藏電話一項
-    whatsapp:"",
+    phone:"", // 留空：自動隱藏電話與 WhatsApp 按鈕
     hours:"10:00 - 19:00",
     query:"旺角荷李活商業中心"
   },
@@ -357,8 +344,7 @@ var stores={
     lat:22.3367,lng:114.1494,
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
-    phone:"", // 留空：Popup 卡片內會自動隱藏電話一項
-    whatsapp:"",
+    phone:"", // 留空：自動隱藏電話與 WhatsApp 按鈕
     hours:"9:00 - 18:00",
     query:"新昌工業大廈"
   }
@@ -369,12 +355,13 @@ var markers={};
 for(var key in stores){
   var s=stores[key];
 
-  // 動態判斷電話欄位：如果有電話才顯示，沒有就不生成 HTML
+  // 1. 動態判斷電話欄位
   var phoneHtml = "";
   if(s.phone && s.phone.trim() !== "" && s.phone !== "-"){
     phoneHtml = '<div class="info-text">電話：'+s.phone+'</div>';
   }
 
+  // 2. 生成標記與 Popup
   var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
   .addTo(map)
   .bindPopup(
@@ -395,12 +382,23 @@ for(var key in stores){
 
   markers[key]=marker;
 
+  // 3. 自動從 phone 提取數字，加上 852 綁定到 WhatsApp 按鈕
   var waElem = document.getElementById('wa-' + key);
   if(waElem){
-    if(s.whatsapp && s.whatsapp.trim() !== "" && s.whatsapp !== "-"){
-      waElem.href = "https://wa.me/" + s.whatsapp;
+    if(s.phone && s.phone.trim() !== "" && s.phone !== "-"){
+      // 自動清除非數字字元（只保留數字）
+      var cleanPhone = s.phone.replace(/\D/g, ''); 
+      if(cleanPhone.length >= 8){
+        // 取前 8 位（避免電話字串包含多個號碼）
+        var mainNumber = cleanPhone.substring(0, 8);
+        var waNumber = mainNumber.startsWith('852') ? mainNumber : '852' + mainNumber;
+        waElem.href = "https://wa.me/" + waNumber;
+        waElem.style.display = "flex";
+      } else {
+        waElem.style.display = "none";
+      }
     } else {
-      waElem.style.display = "none";
+      waElem.style.display = "none"; // 無電話則隱藏 WhatsApp 圖示
     }
   }
 }
