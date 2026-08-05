@@ -21,9 +21,15 @@ body{
   z-index:1;
 }
 
-/* 隱藏右下角的 Leaflet / Google Maps 版權標記文字 */
-.leaflet-control-attribution {
-  display: none !important;
+/* ======================
+   極簡版權標記（符合官網發佈規範）
+====================== */
+.leaflet-container .leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 10px;
+  color: #666;
+  padding: 2px 8px;
+  border-radius: 4px 0 0 0;
 }
 
 /* ======================
@@ -298,15 +304,24 @@ body{
 
 <script>
 
-var map=L.map('map',{minZoom:11,maxZoom:20});
+/* 初始化地圖：關閉預設 Leaflet 前綴標誌 */
+var map = L.map('map', {
+  minZoom: 11,
+  maxZoom: 20,
+  attributionControl: false 
+});
+
+/* 手動加入合規極簡的 Google Maps 版權聲明 */
+L.control.attribution({ prefix: false })
+ .addAttribution('&copy; Google Maps')
+ .addTo(map);
 
 /* 使用 Google Maps 地圖底圖 */
 L.tileLayer(
 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
 {
   maxZoom: 20,
-  subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-  attribution: '&copy; Google Maps'
+  subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
 }
 ).addTo(map);
 
