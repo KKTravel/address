@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>門市地址</title>
+<title>米蘭假期・門市地址</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -21,9 +21,7 @@ body{
   z-index:1;
 }
 
-/* ======================
-   極簡版權標記
-====================== */
+/* 極簡版權標記 */
 .leaflet-container .leaflet-control-attribution {
   background: rgba(255, 255, 255, 0.7);
   font-size: 10px;
@@ -32,10 +30,7 @@ body{
   border-radius: 4px 0 0 0;
 }
 
-/* ======================
-   左下角公司 LOGO
-====================== */
-
+/* 左下角公司 LOGO */
 .brand-logo{
   position:absolute;
   bottom:24px;
@@ -60,10 +55,7 @@ body{
   }
 }
 
-/* ======================
-   右上角門市按鈕區
-====================== */
-
+/* 右上角門市按鈕區 */
 .store-buttons{
   position:absolute;
   top:20px;
@@ -112,10 +104,7 @@ body{
   transform:translateY(-2px);
 }
 
-/* ======================
-   圓形 WhatsApp 按鈕
-====================== */
-
+/* 圓形 WhatsApp 按鈕 */
 .wa-btn{
   width:50px;
   height:50px;
@@ -145,10 +134,7 @@ body{
   object-fit:contain;
 }
 
-/* ======================
-   Popup 設計
-====================== */
-
+/* Popup 設計 */
 .leaflet-popup-content-wrapper{
   border-radius:14px;
   box-shadow:0 12px 28px rgba(0,0,0,.18);
@@ -157,8 +143,72 @@ body{
 
 .info-card{max-width:300px;}
 .info-title{font-size:16px;font-weight:600;margin-bottom:8px;padding-right:20px;}
-.info-text{font-size:14px;margin-bottom:4px;color:#222;}
+.info-text{font-size:14px;margin-bottom:6px;color:#222;display:flex;align-items:center;gap:8px;}
 .mtr-note{font-size:13px;color:#666;margin-bottom:6px;}
+
+/* 雙行標籤容器 (自動垂直排列) */
+.badge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.status-badge{
+  display:inline-block;
+  font-size:12px;
+  font-weight:600;
+  padding:4px 12px;
+  border-radius:12px;
+  color:#ffffff;
+  line-height: 1.4;
+}
+
+/* 複製圖標按鈕樣式 */
+.copy-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  background:#f0e6f5;
+  color:#6C2F86;
+  border:none;
+  border-radius:8px;
+  padding:0;
+  cursor:pointer;
+  transition:.25s ease;
+  user-select:none;
+  flex-shrink:0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.copy-btn:hover{
+  background:#e1d1eb;
+}
+
+.copy-btn svg{
+  width:16px;
+  height:16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.copy-btn.copied {
+  background: #25D366 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+.copy-btn.copied svg {
+  stroke: #ffffff !important;
+  stroke-width: 2.8;
+}
 
 .leaflet-container a.leaflet-popup-close-button {
   width: 32px !important;
@@ -178,10 +228,7 @@ body{
   color: #ffffff !important;
 }
 
-/* ======================
-   導航按鈕
-====================== */
-
+/* 導航按鈕 */
 .nav-row{
   display:flex;
   justify-content:center;
@@ -232,29 +279,37 @@ body{
   margin-top:6px;
 }
 
-/* ======================
-   紫色定位圖示
-====================== */
-
-.google-pin{
-  position:relative;
-  width:29px;
-  height:29px;
-  background:#6C2F86;
-  border-radius:50% 50% 50% 0;
-  transform:rotate(-45deg);
-  border:2.5px solid white;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);
+/* 紫色定位圖示 */
+.google-pin {
+  position: relative;
+  width: 32px;
+  height: 42px;
 }
 
-.pin-inner{
-  position:absolute;
-  width:12px;
-  height:12px;
-  background:white;
-  border-radius:50%;
-  top:8px;
-  left:8px;
+.google-pin::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  background: #6C2F86;
+  border: 2.5px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
+  box-sizing: border-box;
+}
+
+.pin-inner {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  z-index: 2;
 }
 </style>
 </head>
@@ -292,6 +347,102 @@ body{
 
 <script>
 
+/* =========================================================
+   📢 通告、電話與模擬控制器 (EXE 安全寫入區域)
+========================================================= */
+
+/* CONFIG_START */
+var mockCurrentDate = null; 
+var mockWeatherAlert = null; 
+
+var storeNoticeTexts = {
+  tsuenwan: "",
+  mongkok: "",
+  laichikok: {
+    text: "因慶祝中秋節，旺角門市將於15:00 提早休息",
+    until: "2026-08-05 15:56"
+  }
+};
+
+var globalNoticeText = "";
+
+var storePhones = {
+  tsuenwan: ["5977 6032"],
+  mongkok: [],
+  laichikok: []
+};
+/* CONFIG_END */
+
+
+/* =========================================================
+   解析通告與過期判斷（含自動消除空格防呆）
+========================================================= */
+function getNoticeDetail(noticeInput, nowObj) {
+  if (!noticeInput) return { text: "", isExpired: false };
+
+  var noticeText = "";
+  var untilStr = "";
+
+  if (typeof noticeInput === 'string') {
+    noticeText = noticeInput.trim();
+  } else if (typeof noticeInput === 'object') {
+    noticeText = noticeInput.text ? noticeInput.text.trim() : "";
+    untilStr = noticeInput.until ? noticeInput.until.trim() : "";
+  }
+
+  if (noticeText === "") return { text: "", isExpired: false };
+
+  var isExpired = false;
+  if (untilStr !== "") {
+    try {
+      // 防呆：修復 "11 : 00 : 00" 等帶多餘空格的日期字串
+      untilStr = untilStr.replace(/\s*:\s*/g, ':').trim();
+      var expireDate = null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(untilStr)) {
+        expireDate = new Date(untilStr + 'T23:59:59');
+      } else {
+        expireDate = new Date(untilStr.replace(' ', 'T'));
+      }
+
+      if (expireDate && !isNaN(expireDate.getTime())) {
+        if (nowObj > expireDate) {
+          isExpired = true;
+        }
+      }
+    } catch(e) {}
+  }
+
+  return { text: noticeText, isExpired: isExpired };
+}
+
+
+/* =========================================================
+   地圖與基礎資料結構
+========================================================= */
+
+var COLOR_RED = "#e74c3c";    // 🔴 惡劣天氣 / 裝修暫停 / 警報
+var COLOR_GREEN = "#27ae60";  // 🟢 加營業時間 / 促銷活動 / 營業中
+var COLOR_ORANGE = "#e67e22"; // 🟠 減營業時間 (如提早休息) / 需查詢提示
+
+var weatherWarningNotice = ""; 
+
+function autoDetectColor(text) {
+  if (!text) return COLOR_RED;
+  var isRedAlert = /風球|暴雨|警告|裝修|維修|暫停|關門/i.test(text);
+  if (isRedAlert && !text.includes("恢復營業")) {
+    return COLOR_RED;
+  }
+  var isOrangeNotice = /提早|縮短|減|需查詢/i.test(text);
+  if (isOrangeNotice) {
+    return COLOR_ORANGE;
+  }
+  var isGreenNotice = /營業|恢復|開放|重開|茶會|講座|推介會|展覽|活動|週六|周六|星期六|禮拜六/i.test(text);
+  if (isGreenNotice) {
+    return COLOR_GREEN;
+  }
+  return COLOR_ORANGE;
+}
+
 var map = L.map('map', {
   minZoom: 11,
   maxZoom: 20,
@@ -315,9 +466,14 @@ map.setView([22.35,114.14],12);
 var dotIcon=L.divIcon({
   className:"",
   html:'<div class="google-pin"><div class="pin-inner"></div></div>',
-  iconSize:[36,48],
-  iconAnchor:[18,48]
+  iconSize:[32,42],
+  iconAnchor:[16,42]
 });
+
+var copySvg = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+var checkSvg = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+var currentCopiedText = "";
 
 var stores={
   tsuenwan:{
@@ -325,8 +481,11 @@ var stores={
     lat:22.37367,lng:114.11634,
     address:"荃灣南豐中心17樓1714室",
     mtr:"（荃灣港鐵站 A 出口）",
-    phone:"5977 6032", // 支援多個電話！Popup 會完整顯示，WhatsApp 自動抓第一個號碼
-    hours:"10:00 - 19:00",
+    phones: (typeof storePhones !== 'undefined' && storePhones.tsuenwan) ? storePhones.tsuenwan : ["5977 6032"],
+    hours:"星期一至日 10:00 - 19:00",
+    openTime: 10.0,
+    closeTime: 19.0,
+    daysOpen: [0, 1, 2, 3, 4, 5, 6],
     query:"荃灣南豐中心"
   },
   mongkok:{
@@ -334,8 +493,11 @@ var stores={
     lat:22.31675,lng:114.17015,
     address:"旺角荷李活商業中心11樓1101室",
     mtr:"（旺角港鐵站 E2 出口）",
-    phone:"", 
-    hours:"10:00 - 19:00",
+    phones: (typeof storePhones !== 'undefined' && storePhones.mongkok) ? storePhones.mongkok : [],
+    hours:"星期一至日 10:00 - 19:00",
+    openTime: 10.0,
+    closeTime: 19.0,
+    daysOpen: [0, 1, 2, 3, 4, 5, 6],
     query:"旺角荷李活商業中心"
   },
   laichikok:{
@@ -343,63 +505,232 @@ var stores={
     lat:22.3367,lng:114.1494,
     address:"長沙灣長義街2-4號新昌工業大廈11樓1103B室",
     mtr:"（荔枝角港鐵站 D2 出口）",
-    phone:"", 
-    hours:"9:00 - 18:00",
+    phones: (typeof storePhones !== 'undefined' && storePhones.laichikok) ? storePhones.laichikok : [],
+    hours:"星期一至五 09:00 - 18:00",
+    openTime: 9.0,
+    closeTime: 18.0,
+    daysOpen: [1, 2, 3, 4, 5],
     query:"新昌工業大廈"
   }
 };
 
 var markers={};
 
-for(var key in stores){
-  var s=stores[key];
+/* 核心狀態與通告判定 (全方位解析與防呆) */
+function getAutoStoreStatus(key, s) {
+  var now;
+  if (typeof mockCurrentDate !== 'undefined' && mockCurrentDate) {
+    if (typeof mockCurrentDate === 'string') {
+      // 防呆：清理模擬時間中的多餘空格與格式問題
+      var cleanDateStr = mockCurrentDate.replace(/\s*:\s*/g, ':').trim().replace(' ', 'T');
+      now = new Date(cleanDateStr);
+    } else {
+      now = new Date(mockCurrentDate);
+    }
+  } else {
+    now = new Date();
+  }
+  
+  if (isNaN(now.getTime())) now = new Date();
 
-  // 1. 動態判斷電話欄位（即使有多個電話也能完整顯示）
-  var phoneHtml = "";
-  if(s.phone && s.phone.trim() !== "" && s.phone !== "-"){
-    phoneHtml = '<div class="info-text">電話：'+s.phone+'</div>';
+  var currentDay = now.getDay();
+  var currentHour = now.getHours() + (now.getMinutes() / 60);
+
+  var statusBadge = null; 
+  var noticeBadge = null; 
+
+  var ownDetail = (typeof storeNoticeTexts !== 'undefined' && storeNoticeTexts[key]) ? getNoticeDetail(storeNoticeTexts[key], now) : { text: "", isExpired: false };
+  var globalDetail = (typeof globalNoticeText !== 'undefined' && globalNoticeText) ? getNoticeDetail(globalNoticeText, now) : { text: "", isExpired: false };
+
+  var rawNoticeText = "";
+  var isNoticeExpired = false;
+
+  if (ownDetail.text !== "") {
+    rawNoticeText = ownDetail.text;
+    isNoticeExpired = ownDetail.isExpired;
+  } else if (key !== 'laichikok' && globalDetail.text !== "") {
+    rawNoticeText = globalDetail.text;
+    isNoticeExpired = globalDetail.isExpired;
+  } else if (weatherWarningNotice && weatherWarningNotice.trim() !== "") {
+    rawNoticeText = weatherWarningNotice;
+    isNoticeExpired = false;
+  } else if (key === 'laichikok') {
+    rawNoticeText = "星期六、日需查詢";
+    isNoticeExpired = false;
   }
 
-  // 2. 生成標記與 Popup
-  var marker=L.marker([s.lat,s.lng],{icon:dotIcon})
-  .addTo(map)
-  .bindPopup(
-    '<div class="info-card">'+
-      '<div class="info-title">'+s.name+'</div>'+
-      '<div class="info-text">地址：'+s.address+'</div>'+
-      '<div class="mtr-note">'+s.mtr+'</div>'+
-      phoneHtml +
-      '<div class="info-text">營業時間：'+s.hours+'</div>'+
+  if (rawNoticeText !== "" && !isNoticeExpired) {
+    var noticeColor = autoDetectColor(rawNoticeText);
+    noticeBadge = { text: rawNoticeText, color: noticeColor };
+  }
 
-      '<div class="nav-row">'+
-        createNavButton(s.lat,s.lng,s.query,'transit','transit.png','公共交通')+
-        createNavButton(s.lat,s.lng,s.query,'driving','drive.png','駕車')+
-        createNavButton(s.lat,s.lng,s.query,'walking','walk.png','步行')+
-      '</div>'+
-    '</div>'
-  );
+  var isSpecialOpen = false;
+  var isEarlyClosed = false;
 
-  markers[key]=marker;
+  if (rawNoticeText !== "") {
+    var timeMatches = rawNoticeText.match(/(\d{1,2}):(\d{2})/g);
 
-  // 3. 自動從電話字串中提取「第一個 8 位數香港電話號碼」綁定到 WhatsApp
-  var waElem = document.getElementById('wa-' + key);
-  if(waElem){
-    if(s.phone && s.phone.trim() !== "" && s.phone !== "-"){
-      // 使用正則表達式尋找第一個 8 位連續數字（可相容 5977 6032 或 59776032）
-      var numbersOnly = s.phone.replace(/\D/g, ''); 
-      if(numbersOnly.length >= 8){
-        var firstNumber = numbersOnly.substring(0, 8);
-        var waNumber = firstNumber.startsWith('852') ? firstNumber : '852' + firstNumber;
-        waElem.href = "https://wa.me/" + waNumber;
-        waElem.style.display = "flex";
+    // 週六活動提早 1 小時開門準備 (例如：10:30 有活動 -> 9:30 即判定為營業中)
+    if (/周六|週六|星期六|禮拜六|Saturday/i.test(rawNoticeText) && currentDay === 6 && !isNoticeExpired) {
+      if (timeMatches && timeMatches.length > 0) {
+        var earliestHour = 24;
+        for (var i = 0; i < timeMatches.length; i++) {
+          var parts = timeMatches[i].split(":");
+          var h = parseFloat(parts[0]) + (parseFloat(parts[1]) / 60);
+          if (h < earliestHour) earliestHour = h;
+        }
+        var actualOpenHour = earliestHour - 1.0;
+        if (actualOpenHour < 0) actualOpenHour = 0;
+
+        if (currentHour >= actualOpenHour) {
+          isSpecialOpen = true;
+        }
+      } else {
+        isSpecialOpen = true;
+      }
+    }
+
+    // 提早休息判定
+    var isCloseAction = rawNoticeText.includes("提早休息") || rawNoticeText.includes("暫停") || rawNoticeText.includes("休息") || rawNoticeText.includes("關門") || rawNoticeText.includes("提早");
+    if (isCloseAction && timeMatches && timeMatches.length > 0) {
+      var targetTimeStr = timeMatches[timeMatches.length - 1]; 
+      var parts = targetTimeStr.split(":");
+      var targetHour = parseFloat(parts[0]) + (parseFloat(parts[1]) / 60);
+
+      if (currentHour >= targetHour) {
+        isEarlyClosed = true;
+      }
+    }
+  }
+
+  if (isEarlyClosed) {
+    statusBadge = { text: "已休息", color: COLOR_RED };
+  } else if (isSpecialOpen) {
+    statusBadge = { text: "營業中", color: COLOR_GREEN };
+  } else if (s.daysOpen.includes(currentDay)) {
+    if (currentHour >= s.openTime && currentHour < s.closeTime) {
+      statusBadge = { text: "營業中", color: COLOR_GREEN };
+    } else {
+      statusBadge = { text: "已休息", color: COLOR_RED };
+    }
+  } else {
+    statusBadge = { text: "已休息", color: COLOR_RED };
+  }
+
+  return { status: statusBadge, notice: noticeBadge };
+}
+
+function renderStores(){
+  for(var key in stores){
+    var s=stores[key];
+    s.phones = (typeof storePhones !== 'undefined' && storePhones[key]) ? storePhones[key] : [];
+
+    var phoneHtml = "";
+    if(s.phones && s.phones.length > 0){
+      for(var p = 0; p < s.phones.length; p++){
+        var pNum = s.phones[p].trim();
+        if(pNum !== ""){
+          phoneHtml += '<div class="info-text">電話：'+pNum+' <button class="copy-btn" data-copy="'+pNum+'" title="複製電話" onclick="copyText(\''+pNum+'\', this)">'+copySvg+'</button></div>';
+        }
+      }
+    }
+
+    var result = getAutoStoreStatus(key, s);
+
+    var badgesHtml = '<div class="badge-container">';
+    if (result.status) {
+      badgesHtml += '<div class="status-badge" style="background-color:'+result.status.color+';">'+result.status.text+'</div>';
+    }
+    if (result.notice) {
+      badgesHtml += '<div class="status-badge" style="background-color:'+result.notice.color+';">'+result.notice.text+'</div>';
+    }
+    badgesHtml += '</div>';
+
+    var popupContent = 
+      '<div class="info-card">'+
+        '<div class="info-title">'+s.name+'</div>'+
+        badgesHtml +
+        '<div class="info-text">地址：'+s.address+' <button class="copy-btn" data-copy="'+s.address+'" title="複製地址" onclick="copyText(\''+s.address+'\', this)">'+copySvg+'</button></div>'+
+        '<div class="mtr-note">'+s.mtr+'</div>'+
+        phoneHtml +
+        '<div class="info-text">營業時間：'+s.hours+'</div>'+
+
+        '<div class="nav-row">'+
+          createNavButton(s.lat,s.lng,s.query,'transit','transit.png','公共交通')+
+          createNavButton(s.lat,s.lng,s.query,'driving','drive.png','駕車')+
+          createNavButton(s.lat,s.lng,s.query,'walking','walk.png','步行')+
+        '</div>'+
+      '</div>';
+
+    if(!markers[key]){
+      var marker=L.marker([s.lat,s.lng],{icon:dotIcon}).addTo(map);
+      markers[key]=marker;
+    }
+    
+    markers[key].bindPopup(popupContent);
+
+    var waElem = document.getElementById('wa-' + key);
+    if(waElem){
+      if(s.phones && s.phones.length > 0 && s.phones[0].trim() !== ""){
+        var numbersOnly = s.phones[0].replace(/\D/g, ''); 
+        if(numbersOnly.length >= 8){
+          var firstNumber = numbersOnly.substring(0, 8);
+          var waNumber = firstNumber.startsWith('852') ? firstNumber : '852' + firstNumber;
+          waElem.href = "https://wa.me/" + waNumber;
+          waElem.style.display = "flex";
+        } else {
+          waElem.style.display = "none";
+        }
       } else {
         waElem.style.display = "none";
       }
-    } else {
-      waElem.style.display = "none";
     }
   }
 }
+
+renderStores();
+setInterval(renderStores, 60000);
+
+function checkHKOWeatherAlert() {
+  weatherWarningNotice = "";
+
+  var activeMockWeather = (typeof mockWeatherAlert !== 'undefined') ? mockWeatherAlert : null;
+
+  if (activeMockWeather === "TC8") {
+    weatherWarningNotice = "熱帶氣旋警告生效中，門市暫停開放";
+    renderStores();
+    return;
+  } else if (activeMockWeather === "BLACK") {
+    weatherWarningNotice = "黑色暴雨警告生效中，門市暫停開放";
+    renderStores();
+    return;
+  } else if (activeMockWeather === "NONE") {
+    renderStores();
+    return;
+  }
+
+  fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc')
+    .then(response => response.json())
+    .then(data => {
+      if (data.WTRI) {
+        var tcCode = data.WTRI.code;
+        if (['TC8NE', 'TC8SE', 'TC8NW', 'TC8SW', 'TC9', 'TC10'].includes(tcCode)) {
+          weatherWarningNotice = "熱帶氣旋警告生效中，門市暫停開放";
+        }
+      }
+
+      if (data.WRAIN && data.WRAIN.code === 'WBLACK') {
+        weatherWarningNotice = "黑色暴雨警告生效中，門市暫停開放";
+      }
+
+      renderStores();
+    })
+    .catch(err => {
+      console.log("天文台天氣 API 連線正常或暫無極端天氣");
+    });
+}
+
+checkHKOWeatherAlert();
 
 function createNavButton(lat,lng,query,mode,icon,label){
   return '<div class="nav-item" onclick="selectNav(this); smartNavigate('+lat+','+lng+',\''+encodeURIComponent(query)+'\',\''+mode+'\')">'+
@@ -407,6 +738,32 @@ function createNavButton(lat,lng,query,mode,icon,label){
            '<div class="nav-label">'+label+'</div>'+
          '</div>';
 }
+
+function copyText(text, btnElement) {
+  navigator.clipboard.writeText(text).then(function() {
+    currentCopiedText = text;
+    updateAllCopyButtons();
+  });
+}
+
+function updateAllCopyButtons() {
+  document.querySelectorAll('.copy-btn').forEach(function(btn) {
+    var targetText = btn.getAttribute('data-copy');
+    if (targetText && targetText === currentCopiedText) {
+      btn.innerHTML = checkSvg;
+      btn.classList.add('copied');
+      btn.title = "已複製至剪貼簿";
+    } else {
+      btn.innerHTML = copySvg;
+      btn.classList.remove('copied');
+      btn.title = "點擊複製";
+    }
+  });
+}
+
+map.on('popupopen', function() {
+  updateAllCopyButtons();
+});
 
 function goToStore(key){
   var s=stores[key];
